@@ -1,5 +1,5 @@
 import React, {Fragment, useEffect} from 'react';
-import {View, ScrollView, StyleSheet, I18nManager} from 'react-native';
+import {View, StyleSheet, I18nManager} from 'react-native';
 import {renderHorizSections} from './renderHorizSections';
 import RenderLineInBarChart from './renderLineInBarChart';
 import RenderVerticalLines from './renderVerticalLines';
@@ -9,6 +9,7 @@ import {
   BarAndLineChartsWrapperTypes,
   useBarAndLineChartsWrapper,
 } from 'gifted-charts-core';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
   const {
