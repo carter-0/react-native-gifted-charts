@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import {Animated, Easing, View} from 'react-native';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
+import {Animated, Easing, View, ViewStyle} from 'react-native';
 import RenderBars from './RenderBars';
 import RenderStackBars from './RenderStackBars';
 import BarAndLineChartsWrapper from '../Components/BarAndLineChartsWrapper';
@@ -10,13 +10,13 @@ import {screenWidth} from '../utils';
 
 export const BarChart = (props: BarChartPropsType) => {
   const heightValue = useMemo(() => new Animated.Value(0), []);
-  const opacValue = useMemo(() => new Animated.Value(0), []);
+  const opacityValue = useMemo(() => new Animated.Value(0), []);
   const widthValue = useMemo(() => new Animated.Value(0), []);
 
   const scrollRef = props.scrollRef ?? useRef(null);
   const remainingScrollViewProps = {
     onScroll: (ev: any) => props.onScroll?.(ev),
-    onTouchStart: evt => {
+    onTouchStart: (evt: any) => {
       if (props.renderTooltip) {
         setSelectedIndex(-1);
       }
@@ -58,6 +58,7 @@ export const BarChart = (props: BarChartPropsType) => {
     data,
     barWidth,
     setPointerX,
+    pointerIndex,
     setPointerIndex,
     maxValue,
     responderStartTime,
@@ -86,17 +87,26 @@ export const BarChart = (props: BarChartPropsType) => {
     autoShiftLabels,
     getPropsCommonForBarAndStack,
     barAndLineChartsWrapperProps,
-  } = useBarChart({...props, heightValue, widthValue, opacValue});
+    autoShiftLabelsForNegativeStacks,
+  } = useBarChart({
+    ...props,
+    heightValue,
+    widthValue,
+    opacityValue,
+    parentWidth: props.parentWidth ?? screenWidth,
+  });
+
+  const {stackData} = barAndLineChartsWrapperProps;
 
   const labelsAppear = useCallback(() => {
-    opacValue.setValue(0);
-    Animated.timing(opacValue, {
+    opacityValue.setValue(0);
+    Animated.timing(opacityValue, {
       toValue: 1,
       duration: 500,
       easing: Easing.ease,
       useNativeDriver: false,
     }).start();
-  }, [opacValue]);
+  }, [opacityValue]);
 
   const decreaseWidth = useCallback(() => {
     widthValue.setValue(0);
@@ -134,7 +144,7 @@ export const BarChart = (props: BarChartPropsType) => {
     });
   };
 
-  const renderStripAndLabel = pointerLabelComponent => {
+  const renderStripAndLabel = (pointerLabelComponent: any) => {
     let pointerItemLocal,
       pointerYLocal = pointerY;
 
@@ -164,15 +174,28 @@ export const BarChart = (props: BarChartPropsType) => {
       scrollX: 0,
       pointerEvents,
       isBarChart: true,
+      pointerIndex,
+      width: totalWidth,
+      screenWidth,
+      containsNegative: false,
     });
+  };
+
+  const contentContainerStyle: ViewStyle = {
+    position: 'absolute',
+    height: containerHeightIncludingBelowXAxis,
+    bottom: 60 + labelsExtraHeight,
+    paddingLeft: initialSpacing,
+    width: totalWidth,
+    flexDirection: 'row',
   };
 
   const renderChartContent = () => {
     if (pointerConfig) {
       return (
         <View
-          onStartShouldSetResponder={evt => (pointerConfig ? true : false)}
-          onMoveShouldSetResponder={evt => (pointerConfig ? true : false)}
+          onStartShouldSetResponder={() => !!pointerConfig}
+          onMoveShouldSetResponder={() => !!pointerConfig}
           onResponderGrant={evt => {
             if (!pointerConfig) return;
             setResponderStartTime(evt.timeStamp);
@@ -197,12 +220,16 @@ export const BarChart = (props: BarChartPropsType) => {
               barWidth / 2;
             setPointerX(z);
             setPointerIndex(factor);
+
             let item, y;
-            item = (props.stackData ?? data)[factor];
-            const stackSum = item.stacks?.reduce(
-              (acc, stack) => acc + (stack.value ?? 0),
-              0,
-            );
+            item = (stackData ?? data)[factor];
+            let stackSum = 0;
+            if ('stacks' in item) {
+              stackSum = item.stacks.reduce(
+                (acc: number, stack: any) => acc + (stack.value ?? 0),
+                0,
+              );
+            }
             y =
               containerHeight -
               ((stackSum ?? item.value) * containerHeight) / maxValue -
@@ -230,7 +257,7 @@ export const BarChart = (props: BarChartPropsType) => {
             let factor =
               (x - initialSpacing - barWidth / 2) / (spacing + barWidth);
             factor = Math.round(factor);
-            factor = Math.min(factor, (props.stackData ?? data).length - 1);
+            factor = Math.min(factor, (stackData ?? data).length - 1);
             factor = Math.max(factor, 0);
             let z =
               initialSpacing +
@@ -240,11 +267,14 @@ export const BarChart = (props: BarChartPropsType) => {
             let item, y;
             setPointerX(z);
             setPointerIndex(factor);
-            item = (props.stackData ?? data)[factor];
-            const stackSum = item.stacks?.reduce(
-              (acc, stack) => acc + (stack.value ?? 0),
-              0,
-            );
+            item = (stackData ?? data)[factor];
+            let stackSum = 0;
+            if ('stacks' in item) {
+              item.stacks?.reduce(
+                (acc: number, stack: any) => acc + (stack.value ?? 0),
+                0,
+              );
+            }
             y =
               containerHeight -
               ((stackSum ?? item.value) * containerHeight) / maxValue -
@@ -261,14 +291,7 @@ export const BarChart = (props: BarChartPropsType) => {
               setTimeout(() => setPointerX(0), pointerVanishDelay);
           }}
           onResponderTerminationRequest={evt => false}
-          style={{
-            position: 'absolute',
-            height: containerHeightIncludingBelowXAxis,
-            bottom: 60,
-            paddingLeft: initialSpacing,
-            width: totalWidth,
-            flexDirection: 'row',
-          }}>
+          style={contentContainerStyle}>
           {pointerX > 0 && stripBehindBars ? (
             <View
               pointerEvents={pointerEvents ?? 'none'}
@@ -276,7 +299,7 @@ export const BarChart = (props: BarChartPropsType) => {
                 position: 'absolute',
                 height:
                   extendedContainerHeight + noOfSectionsBelowXAxis * stepHeight,
-                bottom: xAxisLabelsVerticalShift + labelsExtraHeight,
+                bottom: xAxisLabelsVerticalShift,
                 width: totalWidth,
               }}>
               {renderStripAndLabel(null)}
@@ -290,7 +313,7 @@ export const BarChart = (props: BarChartPropsType) => {
                 position: 'absolute',
                 height:
                   extendedContainerHeight + noOfSectionsBelowXAxis * stepHeight,
-                bottom: xAxisLabelsVerticalShift + labelsExtraHeight,
+                bottom: xAxisLabelsVerticalShift,
                 width: totalWidth,
                 zIndex: 20,
               }}>
@@ -310,15 +333,16 @@ export const BarChart = (props: BarChartPropsType) => {
         </View>
       );
     } else {
-      return renderChart();
+      return <View style={contentContainerStyle}>{renderChart()}</View>;
     }
   };
 
   const renderChart = () => {
-    if (props.stackData) {
-      return props.stackData.map((item, index) => {
+    if (stackData) {
+      return stackData.map((item, index) => {
         return (
           <RenderStackBars
+            key={index}
             stackData={props.stackData || []}
             isAnimated={isAnimated}
             animationDuration={animationDuration}
@@ -327,6 +351,7 @@ export const BarChart = (props: BarChartPropsType) => {
             stackBorderTopRightRadius={props.stackBorderTopRightRadius}
             stackBorderBottomLeftRadius={props.stackBorderBottomLeftRadius}
             stackBorderBottomRightRadius={props.stackBorderBottomRightRadius}
+            autoShiftLabelsForNegativeStacks={autoShiftLabelsForNegativeStacks}
             {...getPropsCommonForBarAndStack(item, index)}
           />
         );
@@ -334,6 +359,7 @@ export const BarChart = (props: BarChartPropsType) => {
     } else {
       return data.map((item, index) => (
         <RenderBars
+          key={index}
           data={data}
           side={side}
           minHeight={props.minHeight ?? (isAnimated && !isThreeD ? 0.1 : 0)}
@@ -354,7 +380,6 @@ export const BarChart = (props: BarChartPropsType) => {
           capColor={props.capColor}
           capRadius={props.capRadius}
           autoShiftLabels={autoShiftLabels}
-          barMarginBottom={props.barMarginBottom}
           barStyle={props.barStyle}
           {...getPropsCommonForBarAndStack(item, index)}
         />
@@ -368,6 +393,7 @@ export const BarChart = (props: BarChartPropsType) => {
       scrollRef={scrollRef}
       renderChartContent={renderChartContent}
       remainingScrollViewProps={remainingScrollViewProps}
+      nestedScrollEnabled={props.nestedScrollEnabled}
     />
   );
 };

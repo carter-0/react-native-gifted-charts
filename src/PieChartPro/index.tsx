@@ -40,7 +40,7 @@ export const PieChartPro = (props: PieChartPropsType) => {
     edgesRadius = 0,
     showGradient,
     ring,
-    pieInnerComponent,
+    centerLabelComponent,
     strokeDashArray,
     semiCircle,
   } = props;
@@ -103,7 +103,7 @@ export const PieChartPro = (props: PieChartPropsType) => {
             ? {position: 'absolute', bottom: 0}
             : {position: 'absolute'}
         }>
-        {pieInnerComponent ? pieInnerComponent() : null}
+        {centerLabelComponent ? centerLabelComponent() : null}
       </View>
       <Svg
         {...rnSvgProps}
@@ -153,7 +153,7 @@ export const PieChartPro = (props: PieChartPropsType) => {
               const borderColor =
                 item.strokeColor ??
                 props.strokeColor ??
-                (borderWidth ? 'black' : 'transparent');
+                (borderWidth ? 'black' : 'none');
               const strokeDashArrayLocal =
                 item.strokeDashArray ?? strokeDashArray;
               return (
@@ -163,7 +163,7 @@ export const PieChartPro = (props: PieChartPropsType) => {
                   d={isAnimated ? animatedPaths[index] : dFinal[index]}
                   fill={
                     ring
-                      ? 'transparent'
+                      ? 'none'
                       : showGradient
                         ? `url(#grad${index})`
                         : data[index].color || pieColors[index % 9]

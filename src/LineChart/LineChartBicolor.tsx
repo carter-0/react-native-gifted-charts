@@ -15,12 +15,13 @@ import {
   bicolorLineDataItem,
   useLineChartBiColor,
 } from 'gifted-charts-core';
+import {screenWidth} from '../utils';
 
 export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
   const scrollRef = useRef();
   // const heightValue = useMemo(() => new Animated.Value(0), []);
   const widthValue = useMemo(() => new Animated.Value(0), []);
-  const opacValue = useMemo(() => new Animated.Value(0), []);
+  const opacityValue = useMemo(() => new Animated.Value(0), []);
 
   const {
     pointsArray,
@@ -81,19 +82,22 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
     unFocusOnPressOut,
     delayBeforeUnFocus,
     barAndLineChartsWrapperProps,
-  } = useLineChartBiColor(props);
+  } = useLineChartBiColor({
+    ...props,
+    parentWidth: props.parentWidth ?? screenWidth,
+  });
 
   const labelsAppear = useCallback(() => {
-    opacValue.setValue(0);
-    Animated.timing(opacValue, {
+    opacityValue.setValue(0);
+    Animated.timing(opacityValue, {
       toValue: 1,
       duration: 500,
       easing: Easing.ease,
       useNativeDriver: false,
     }).start();
-  }, [opacValue]);
+  }, [opacityValue]);
 
-  const appearingOpacity = opacValue.interpolate({
+  const appearingOpacity = opacityValue.interpolate({
     inputRange: [0, 1],
     outputRange: [0, 1],
   });
@@ -115,7 +119,7 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
 
   const renderLabel = (
     index: number,
-    label: String,
+    label: string,
     labelTextStyle: any,
     labelComponent?: Function,
   ) => {
@@ -150,7 +154,7 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
 
   const renderAnimatedLabel = (
     index: number,
-    label: String,
+    label: string,
     labelTextStyle: any,
     labelComponent?: Function,
   ) => {
@@ -190,7 +194,7 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
     outputRange: [0, totalWidth],
   });
 
-  const onStripPress = (item, index) => {
+  const onStripPress = (item: any, index: number) => {
     setSelectedIndex(index);
     if (props.onFocus) {
       props.onFocus(item, index);
@@ -198,16 +202,16 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
   };
 
   const renderDataPoints = (
-    dataForRender,
-    dataPtsShape,
-    dataPtsWidth,
-    dataPtsHeight,
-    dataPtsColor,
-    dataPtsRadius,
-    textColor,
-    textFontSize,
-    startIndex,
-    endIndex,
+    dataForRender: any,
+    dataPtsShape: any,
+    dataPtsWidth: any,
+    dataPtsHeight: any,
+    dataPtsColor: any,
+    dataPtsRadius: any,
+    textColor: any,
+    textFontSize: any,
+    startIndex: number,
+    endIndex: number,
   ) => {
     return dataForRender.map((item: bicolorLineDataItem, index: number) => {
       if (index < startIndex || index > endIndex) return null;
@@ -495,7 +499,7 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
         strokeDashArray.length === 2 &&
         typeof strokeDashArray[0] === 'number' &&
         typeof strokeDashArray[1] === 'number'
-          ? pointsArray.map((points, index) => (
+          ? pointsArray.map((points: any, index: number) => (
               <Path
                 key={index}
                 d={points.points}
@@ -505,7 +509,7 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
                 strokeDasharray={strokeDashArray}
               />
             ))
-          : pointsArray.map((points, index) => {
+          : pointsArray.map((points: any, index: number) => {
               return (
                 <Path
                   key={index}
@@ -568,7 +572,7 @@ export const LineChartBicolor = (props: LineChartBicolorPropsType) => {
                       ? 'url(#Gradient)'
                       : 'url(#GradientNegative)'
                   }
-                  stroke={'transparent'}
+                  stroke={'none'}
                   strokeWidth={currentLineThickness || thickness}
                 />
               );

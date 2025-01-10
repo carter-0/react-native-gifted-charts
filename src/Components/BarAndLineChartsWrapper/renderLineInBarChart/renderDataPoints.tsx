@@ -3,8 +3,9 @@ import {styles} from '../../../BarChart/styles';
 import {View} from 'react-native';
 import {getXForLineInBar, getYForLineInBar} from 'gifted-charts-core';
 import {Rect, Text as CanvasText, Circle} from 'react-native-svg';
+import {DataPointProps} from 'gifted-charts-core';
 
-export const renderDataPoints = props => {
+export const renderDataPoints = (props: DataPointProps) => {
   const {
     data,
     lineConfig,
@@ -14,15 +15,33 @@ export const renderDataPoints = props => {
     firstBarWidth,
     yAxisLabelWidth,
     spacing,
+    selectedIndex,
+    yAxisOffset,
   } = props;
   return data.map((item: any, index: number) => {
-    if (index < lineConfig.startIndex || index > lineConfig.endIndex) {
+    if (
+      index < lineConfig.startIndex ||
+      index > lineConfig.endIndex ||
+      item.hideDataPoint
+    ) {
       return null;
     }
     const currentBarWidth = item.barWidth || barWidth || 30;
     const customDataPoint = item.customDataPoint || lineConfig.customDataPoint;
+    const dataPointColor =
+      lineConfig.focusEnabled &&
+      index === (lineConfig.focusedDataPointIndex ?? selectedIndex)
+        ? lineConfig.focusedDataPointColor
+        : lineConfig.dataPointsColor;
+
+    const dataPointRadius =
+      lineConfig.focusEnabled &&
+      index === (lineConfig.focusedDataPointIndex ?? selectedIndex)
+        ? lineConfig.focusedDataPointRadius
+        : lineConfig.dataPointsRadius;
     const value =
-      item.value ?? item.stacks.reduce((total, item) => total + item.value, 0);
+      item.value ??
+      item.stacks.reduce((total: number, item: any) => total + item.value, 0);
     if (customDataPoint) {
       return (
         <View
@@ -67,12 +86,13 @@ export const renderDataPoints = props => {
                 lineConfig.shiftY,
                 containerHeight,
                 maxValue,
+                yAxisOffset,
               ) -
               lineConfig.dataPointsHeight / 2
             }
             width={lineConfig.dataPointsWidth}
             height={lineConfig.dataPointsHeight}
-            fill={lineConfig.dataPointsColor}
+            fill={dataPointColor}
           />
           {item.dataPointText && (
             <CanvasText
@@ -94,6 +114,7 @@ export const renderDataPoints = props => {
                   lineConfig.shiftY,
                   containerHeight,
                   maxValue,
+                  yAxisOffset,
                 ) -
                 lineConfig.dataPointsHeight / 2 +
                 (item.textShiftY || lineConfig.textShiftY || 0)
@@ -120,9 +141,10 @@ export const renderDataPoints = props => {
             lineConfig.shiftY,
             containerHeight,
             maxValue,
+            yAxisOffset,
           )}
-          r={lineConfig.dataPointsRadius}
-          fill={lineConfig.dataPointsColor}
+          r={dataPointRadius}
+          fill={dataPointColor}
         />
         {item.dataPointText && (
           <CanvasText
@@ -144,6 +166,7 @@ export const renderDataPoints = props => {
                 lineConfig.shiftY,
                 containerHeight,
                 maxValue,
+                yAxisOffset,
               ) -
               lineConfig.dataPointsHeight / 2 +
               (item.textShiftY || lineConfig.textShiftY || 0)

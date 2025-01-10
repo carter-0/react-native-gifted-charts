@@ -2,7 +2,7 @@ import React, {Fragment} from 'react';
 import {getXForLineInBar, getYForLineInBar} from 'gifted-charts-core';
 import {Circle, Rect, Text as CanvasText} from 'react-native-svg';
 
-export const renderSpecificDataPoints = props => {
+export const renderSpecificDataPoints = (props: any) => {
   const {
     data,
     barWidth,
@@ -12,6 +12,7 @@ export const renderSpecificDataPoints = props => {
     spacing,
     containerHeight,
     maxValue,
+    yAxisOffset,
   } = props;
   return data.map((item: any, index: number) => {
     const currentBarWidth = item.barWidth || barWidth || 30;
@@ -28,6 +29,7 @@ export const renderSpecificDataPoints = props => {
       lineConfig.shiftY,
       containerHeight,
       maxValue,
+      yAxisOffset,
     );
     if (item.showDataPoint) {
       if (item.dataPointShape === 'rectangular') {

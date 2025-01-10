@@ -54,6 +54,8 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
     onEndReached,
     onStartReached,
     onMomentumScrollEnd,
+    nestedScrollEnabled,
+    extraWidthDueToDataPoint = 0, // extraWidthDueToDataPoint will be receved from props onlhy in case of LineCharts, for other charts it will be undefined and will default to 0
   } = props;
 
   const {
@@ -101,7 +103,10 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
         50 -
         overflowTop,
       marginTop: trimYAxisAtTop ? containerHeight / 20 : 0,
-      marginBottom: (xAxisLabelsHeight ?? xAxisTextNumberOfLines * 18) - 55, //This is to not let the Things that should be rendered below the chart overlap with it
+      marginBottom:
+        (xAxisLabelsHeight ?? xAxisTextNumberOfLines * 18) -
+        55 -
+        xAxisLabelsVerticalShift, //This is to not let the Things that should be rendered below the chart overlap with it
     },
   });
 
@@ -125,6 +130,7 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
         onScrollBeginDrag={() => {
           setCanMomentum(true);
         }}
+        nestedScrollEnabled={nestedScrollEnabled}
         onMomentumScrollEnd={({nativeEvent}) => {
           if (onMomentumScrollEnd) {
             onMomentumScrollEnd();
@@ -156,7 +162,7 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
             position: 'absolute',
             bottom: chartType === chartTypes.LINE_BI_COLOR ? 0 : xAxisThickness,
           },
-          !!props.width && {width: props.width},
+          !!props.width && {width: props.width + extraWidthDueToDataPoint},
           horizontal && {
             width:
               (props.width ?? totalWidth) + (props.width ? endSpacing : -20),
@@ -169,10 +175,9 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
               yAxisExtraHeight +
               labelsExtraHeight +
               (50 + xAxisLabelsVerticalShift),
-            width: Math.max(
-              props.width ?? 0,
-              totalWidth - spacing + endSpacing,
-            ),
+            width:
+              Math.max(props.width ?? 0, totalWidth - spacing + endSpacing) +
+              extraWidthDueToDataPoint,
             paddingLeft: initialSpacing,
             paddingBottom:
               noOfSectionsBelowXAxis * stepHeight + labelsExtraHeight,
@@ -192,6 +197,7 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
                 initialSpacing +
                 ((barWidth ?? 0) + spacing) * scrollToIndex -
                 spacing,
+              animated: scrollAnimation,
             });
           }
         }}
@@ -232,7 +238,7 @@ const BarAndLineChartsWrapper = (props: BarAndLineChartsWrapperTypes) => {
                 ) : null;
               })
           }
-          {renderChartContent()}
+          {renderChartContent(containerHeightIncludingBelowXAxis)}
         </Fragment>
       </ScrollView>
       {referenceLinesOverChartContent

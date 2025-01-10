@@ -4,8 +4,10 @@ import Svg, {Path} from 'react-native-svg';
 import {renderSpecificVerticalLines} from './renderSpecificVerticalLines';
 import {renderDataPoints} from './renderDataPoints';
 import {renderSpecificDataPoints} from './renderSpecificDataPoints';
+import {LineInBarChartPropsType} from 'gifted-charts-core';
+import {DataPointProps} from 'gifted-charts-core';
 
-const RenderLineInBarChart = props => {
+const RenderLineInBarChart = (props: LineInBarChartPropsType) => {
   const {
     yAxisLabelWidth,
     initialSpacing,
@@ -22,11 +24,14 @@ const RenderLineInBarChart = props => {
     barWidth,
     labelsExtraHeight,
     xAxisLabelsVerticalShift,
+    selectedIndex,
+    containerHeightIncludingBelowXAxis,
+    yAxisOffset,
   } = props;
 
   const firstBarWidth = data[0].barWidth ?? barWidth;
 
-  const dataPointsProps = {
+  const dataPointsProps: DataPointProps = {
     data,
     lineConfig,
     barWidth,
@@ -35,6 +40,8 @@ const RenderLineInBarChart = props => {
     firstBarWidth,
     yAxisLabelWidth,
     spacing,
+    selectedIndex,
+    yAxisOffset,
   };
 
   const specificVerticalLinesProps = {
@@ -57,16 +64,16 @@ const RenderLineInBarChart = props => {
     spacing,
     containerHeight,
     maxValue,
+    yAxisOffset,
   };
 
   const renderAnimatedLine = () => {
-    // console.log('animatedWidth is-------->', animatedWidth);
     return (
       <Animated.View
         pointerEvents="none"
         style={{
           position: 'absolute',
-          height: containerHeight + 10,
+          height: containerHeightIncludingBelowXAxis + labelsExtraHeight,
           left: 6 - yAxisLabelWidth,
           bottom: 50 + xAxisLabelsVerticalShift, //stepHeight * -0.5 + xAxisThickness,
           width: animatedWidth,
@@ -79,6 +86,7 @@ const RenderLineInBarChart = props => {
             fill="none"
             stroke={lineConfig.color}
             strokeWidth={lineConfig.thickness}
+            strokeDasharray={lineConfig.strokeDashArray}
           />
 
           {renderSpecificVerticalLines(specificVerticalLinesProps)}
@@ -89,9 +97,9 @@ const RenderLineInBarChart = props => {
           {lineConfig.showArrow && (
             <Path
               d={arrowPoints}
-              fill={lineConfig.arrowConfig.fillColor}
-              stroke={lineConfig.arrowConfig.strokeColor}
-              strokeWidth={lineConfig.arrowConfig.strokeWidth}
+              fill={lineConfig.arrowConfig?.fillColor}
+              stroke={lineConfig.arrowConfig?.strokeColor}
+              strokeWidth={lineConfig.arrowConfig?.strokeWidth}
             />
           )}
         </Svg>
@@ -105,7 +113,7 @@ const RenderLineInBarChart = props => {
         pointerEvents="none"
         style={{
           position: 'absolute',
-          height: containerHeight + 10 + labelsExtraHeight,
+          height: containerHeightIncludingBelowXAxis + labelsExtraHeight,
           left: 6 - yAxisLabelWidth,
           bottom: 50 + xAxisLabelsVerticalShift, //stepHeight * -0.5 + xAxisThickness,
           width: totalWidth,
@@ -118,6 +126,7 @@ const RenderLineInBarChart = props => {
             fill="none"
             stroke={lineConfig.color}
             strokeWidth={lineConfig.thickness}
+            strokeDasharray={lineConfig.strokeDashArray}
           />
           {renderSpecificVerticalLines(specificVerticalLinesProps)}
 
@@ -127,9 +136,9 @@ const RenderLineInBarChart = props => {
           {lineConfig.showArrow && (
             <Path
               d={arrowPoints}
-              fill={lineConfig.arrowConfig.fillColor}
-              stroke={lineConfig.arrowConfig.strokeColor}
-              strokeWidth={lineConfig.arrowConfig.strokeWidth}
+              fill={lineConfig.arrowConfig?.fillColor}
+              stroke={lineConfig.arrowConfig?.strokeColor}
+              strokeWidth={lineConfig.arrowConfig?.strokeWidth}
             />
           )}
         </Svg>

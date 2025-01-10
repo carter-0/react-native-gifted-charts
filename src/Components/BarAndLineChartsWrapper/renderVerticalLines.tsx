@@ -3,7 +3,7 @@ import {View} from 'react-native';
 import {chartTypes} from 'gifted-charts-core';
 import {Line, Svg} from 'react-native-svg';
 
-const RenderVerticalLines = props => {
+const RenderVerticalLines = (props: any) => {
   const {
     verticalLinesAr,
     verticalLinesSpacing,
@@ -16,6 +16,7 @@ const RenderVerticalLines = props => {
     verticalLinesStrokeDashArray,
     verticalLinesShift,
     verticalLinesUptoDataPoint,
+    verticalLinesStrokeLinecap,
     xAxisThickness,
     labelsExtraHeight,
     containerHeight,
@@ -29,7 +30,7 @@ const RenderVerticalLines = props => {
     xAxisLabelsVerticalShift,
   } = props;
 
-  const getHeightOfVerticalLine = index => {
+  const getHeightOfVerticalLine = (index: number) => {
     if (verticalLinesUptoDataPoint) {
       if (index < data.length) {
         return (
@@ -47,17 +48,24 @@ const RenderVerticalLines = props => {
   };
 
   const extendedContainerHeight = containerHeight + 10 + labelsExtraHeight;
+  const thickness = verticalLinesThickness || 2;
+  const heightAdjustmentDueToStrokeLinecap =
+    verticalLinesStrokeLinecap === 'round' ||
+    verticalLinesStrokeLinecap === 'square'
+      ? thickness / 2
+      : 0;
 
   return (
     <View
       style={{
         position: 'absolute',
-        height: extendedContainerHeight,
+        height: containerHeightIncludingBelowXAxis,
         bottom: 60 + xAxisLabelsVerticalShift, //stepHeight * -0.5 + xAxisThickness,
+        left: 0,
         width: totalWidth,
         zIndex: verticalLinesZIndex || -1,
       }}>
-      <Svg>
+      <Svg height={containerHeightIncludingBelowXAxis} width={totalWidth}>
         {verticalLinesAr.map((item: any, index: number) => {
           let totalSpacing = initialSpacing;
           if (verticalLinesSpacing) {
@@ -107,19 +115,24 @@ const RenderVerticalLines = props => {
             (chartType === chartTypes.BAR
               ? totalSpacing - 1
               : verticalLinesSpacing
-              ? verticalLinesSpacing * (index + 1)
-              : index * spacing + (initialSpacing - 2));
+                ? verticalLinesSpacing * (index + 1)
+                : index * spacing + (initialSpacing - 2));
 
           return (
             <Line
               key={index}
               x1={x}
-              y1={extendedContainerHeight - getHeightOfVerticalLine(index)}
+              y1={
+                extendedContainerHeight -
+                getHeightOfVerticalLine(index) +
+                heightAdjustmentDueToStrokeLinecap
+              }
               x2={x}
-              y2={extendedContainerHeight}
+              y2={containerHeightIncludingBelowXAxis - heightAdjustmentDueToStrokeLinecap}
               stroke={verticalLinesColor || 'lightgray'}
               strokeWidth={verticalLinesThickness || 2}
               strokeDasharray={verticalLinesStrokeDashArray ?? ''}
+              strokeLinecap={verticalLinesStrokeLinecap}
             />
           );
         })}

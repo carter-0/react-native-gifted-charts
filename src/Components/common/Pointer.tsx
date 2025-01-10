@@ -1,7 +1,6 @@
-import React from 'react';
 import {View} from 'react-native';
 
-export const Pointer = props => {
+export const Pointer = (props: any) => {
   const {
     pointerX,
     pointerYLocal,
@@ -12,12 +11,14 @@ export const Pointer = props => {
     pointerItemLocal,
     pointerColorLocal,
   } = props;
+  if (isNaN(pointerYLocal) || typeof pointerYLocal !== 'number') return null;
+
   return (
     <View
       style={{
         position: 'absolute',
-        left: pointerX + (pointerX.pointerShiftX || 0),
-        top: pointerYLocal - 2,
+        left: pointerX + 1 + (pointerX.pointerShiftX || 0),
+        top: pointerYLocal - 4,
       }}>
       {pointerComponent ? (
         pointerComponent()

@@ -4,46 +4,58 @@
 
 ### Basic props
 
-| Prop                         | Type                 | Description                                                                                             | Default value       |
-| ---------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------- | ------------------- |
-| data                         | Array of barDataItem | An item object represents a bar in the bar chart. It is described in the next table.                    | \_                  |
-| width                        | number               | Width of the Bar chart                                                                                  | width of the parent |
-| height                       | number               | Height of the Bar chart (excluding the bottom label)                                                    | 200                 |
-| onPress                      | Function             | Callback function called on press of a Bar (takes item and index as parameter)                          | null                |
-| onLongPress                  | Function             | Callback function called on long press of a Bar (takes item and index as parameter)                     | null                |
-| onPressOut                   | Function             | Callback function called on press out of a Bar (takes item and index as parameter)                      | null                |
-| focusBarOnPress              | boolean              | used to focus a bar on press by applying styles defined in focusedBarConfig                             | false               |
-| focusedBarConfig             | FocusedBarConfig     | styles for the focused bar including color, width, opacity, borderRadius etc                            | \_                  |
-| maxValue                     | number               | Maximum value shown in the Y axis                                                                       | 200                 |
-| yAxisOffset                  | number               | Starting (minimum) value in the Y axis (value at the origin)                                            | 0                   |
-| mostNegativeValue            | number               | The most negative value shown in the Y axis (to be used only if the data set has negative values too)   | \_                  |
-| noOfSections                 | number               | Number of sections in the Y axis                                                                        | 10                  |
-| noOfSectionsBelowXAxis       | number               | Number of sections in the Y axis below X axis (in case the data set has negative values too)            | 0                   |
-| stepValue                    | number               | Value of 1 step/section in the Y axis                                                                   | 20                  |
-| stepHeight                   | number               | Height of 1 step/section in the Y axis                                                                  | 20                  |
-| spacing                      | number               | Distance between 2 consecutive bars in the Bar chart                                                    | 20                  |
-| backgroundColor              | ColorValue           | Background color of the Bar chart                                                                       | \_                  |
-| scrollref                    | any                  | ref object that can be used to control the horizontal ScrollView inside which the chart is rendered     | React.useRef()      |
-| scrollToIndex                | number               | scroll to a particular index on chart load                                                              | \_                  |
-| disableScroll                | boolean              | To disable horizontal scroll                                                                            | false               |
-| showScrollIndicator          | boolean              | To show horizontal scroll indicator                                                                     | false               |
-| indicatorColor               | String               | (iOS only) The color of the scroll indicators - ('black', 'white' or 'default')                         | default             |
-| showLine                     | boolean              | To show a Line chart over the Bar chart with the same data                                              | false               |
-| lineData                     | Array of items       | The data object for the line chart (use only when showLine is true)                                     | data                |
-| lineConfig                   | lineConfigType       | Properties of the Line chart shown over the Bar chart (lineConfigType) is described below               | defaultLineConfig   |
-| lineData2                    | Array of items       | The data object for the second line chart (use only when showLine is true)                              | \_                  |
-| lineConfig2                  | lineConfigType       | Properties of the second Line chart shown over the Bar chart (lineConfigType) is described below        | defaultLineConfig   |
-| lineBehindBars               | boolean              | When set to true, the line chart will appear behind the Bars in case of overlap                         | false               |
-| autoShiftLabels              | boolean              | When set to true, automatically shifts the X axis labels for negative values                            | false               |
-| scrollToEnd                  | boolean              | When set to true, the chart automatically scrolls to the rightmost bar                                  | false               |
-| scrollAnimation              | boolean              | When set to true, scroll animation is visible when the chart automatically scrolls to the rightmost bar | true                |
-| scrollEventThrottle          | number               | (only for iOS) see https://reactnative.dev/docs/scrollview#scrolleventthrottle-ios                      | 0                   |
-| onScroll                     | Function             | callback function called when the chart is scrolled horizontally                                        | \_                  |
-| onMomentumScrollEnd          | Function             | callback function called when scroll is completed                                                       | \_                  |
-| initialSpacing               | number               | distance of the first bar from the Y axis                                                               | 40                  |
-| renderTooltip                | Function             | tooltip component appearing above the bar when it is pressed, takes item and index as parameters        | null                |
-| leftShiftForTooltip          | number               | The distance by which the tooltip component should shift towards left                                   | 0                   |
-| leftShiftForLastIndexTooltip | number               | The distance by which the tooltip component of the last bar should shift towards left                   | 0                   |
+| Prop                         | Type                 | Description                                                                                                                                       | Default value       |
+| ---------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- |
+| data                         | Array of barDataItem | An item object represents a bar in the bar chart. It is described in the next table.                                                              | \_                  |
+| width                        | number               | Width of the Bar chart                                                                                                                            | width of the parent |
+| height                       | number               | Height of the Bar chart (excluding the bottom label)                                                                                              | 200                 |
+| onPress                      | Function             | Callback function called on press of a Bar (takes item and index as parameter)                                                                    | null                |
+| onLongPress                  | Function             | Callback function called on long press of a Bar (takes item and index as parameter)                                                               | null                |
+| onPressOut                   | Function             | Callback function called on press out of a Bar (takes item and index as parameter)                                                                | null                |
+| focusBarOnPress              | boolean              | used to focus a bar on press by applying styles defined in focusedBarConfig                                                                       | false               |
+| focusedBarConfig             | FocusedBarConfig     | styles for the focused bar including color, width, opacity, borderRadius etc                                                                      | \_                  |
+| focusedBarIndex              | number               | index of the initially focused bar, works only when focusBarOnPress is true                                                                       | -1                  |
+| maxValue                     | number               | Maximum value shown in the Y axis                                                                                                                 | 200                 |
+| yAxisOffset                  | number               | Starting (minimum) value in the Y axis (value at the origin)                                                                                      | 0                   |
+| mostNegativeValue            | number               | The most negative value shown in the Y axis (to be used only if the data set has negative values too)                                             | \_                  |
+| noOfSections                 | number               | Number of sections in the Y axis                                                                                                                  | 10                  |
+| noOfSectionsBelowXAxis       | number               | Number of sections in the Y axis below X axis (in case the data set has negative values too)                                                      | 0                   |
+| stepValue                    | number               | Value of 1 step/section in the Y axis                                                                                                             | 20                  |
+| stepHeight                   | number               | Height of 1 step/section in the Y axis                                                                                                            | 20                  |
+| negativeStepValue            | number               | Value of 1 step/section in the Y axis for negative values (in the 4th quadrant)                                                                   | stepValue           |
+| negativeStepHeight           | number               | Height of 1 step/section in the Y axis for negative values (in the 4th quadrant)                                                                  | stepHeight          |
+| spacing                      | number               | Distance between 2 consecutive bars in the Bar chart                                                                                              | 20                  |
+| backgroundColor              | ColorValue           | Background color of the Bar chart                                                                                                                 | \_                  |
+| sectionColors                | ColorValue           | Background color of the horizontal sections of the chart                                                                                          | backgroundColor     |
+| customBackground             | CustomBackground     | An object used to set a custom background component (See the properties of this object below)                                                     | \_                  |
+| scrollref                    | any                  | ref object that can be used to control the horizontal ScrollView inside which the chart is rendered                                               | React.useRef()      |
+| scrollToIndex                | number               | scroll to a particular index on chart load                                                                                                        | \_                  |
+| disableScroll                | boolean              | To disable horizontal scroll                                                                                                                      | false               |
+| showScrollIndicator          | boolean              | To show horizontal scroll indicator                                                                                                               | false               |
+| indicatorColor               | String               | (iOS only) The color of the scroll indicators - ('black', 'white' or 'default')                                                                   | default             |
+| nestedScrollEnabled          | boolean              | Useful when the chart is used inside a horizontal ScrollView (without this, the chart's scrolling is compromised)                                 | false               |
+| showLine                     | boolean              | To show a Line chart over the Bar chart with the same data                                                                                        | false               |
+| lineData                     | Array of items       | The data object for the line chart (use only when showLine is true). To hide any datapoint pass hideDataPoint prop as true in specific data item. | data                |
+| lineConfig                   | lineConfigType       | Properties of the Line chart shown over the Bar chart (lineConfigType) is described below                                                         | defaultLineConfig   |
+| lineData2                    | Array of items       | The data object for the second line chart (use only when showLine is true)                                                                        | \_                  |
+| lineConfig2                  | lineConfigType       | Properties of the second Line chart shown over the Bar chart (lineConfigType) is described below                                                  | defaultLineConfig   |
+| lineBehindBars               | boolean              | When set to true, the line chart will appear behind the Bars in case of overlap                                                                   | false               |
+| autoShiftLabels              | boolean              | When set to true, automatically shifts the X axis labels for negative values                                                                      | false               |
+| scrollToEnd                  | boolean              | When set to true, the chart automatically scrolls to the rightmost bar                                                                            | false               |
+| scrollAnimation              | boolean              | When set to true, scroll animation is visible when the chart automatically scrolls to the rightmost bar                                           | true                |
+| scrollEventThrottle          | number               | (only for iOS) see https://reactnative.dev/docs/scrollview#scrolleventthrottle-ios                                                                | 0                   |
+| onScroll                     | Function             | callback function called when the chart is scrolled horizontally                                                                                  | \_                  |
+| onMomentumScrollEnd          | Function             | callback function called when scroll is completed                                                                                                 | \_                  |
+| initialSpacing               | number               | distance of the first bar from the Y axis                                                                                                         | 40                  |
+| renderTooltip                | Function             | tooltip component appearing above the bar when it is pressed, takes item and index as parameters                                                  | null                |
+| leftShiftForTooltip          | number               | The distance by which the tooltip component should shift towards left                                                                             | 0                   |
+| leftShiftForLastIndexTooltip | number               | The distance by which the tooltip component of the last bar should shift towards left                                                             | 0                   |
+| autoCenterTooltip            | boolean              | When set to true, automatically centers the tooltip                                                                                               | false               |
+| adjustToWidth                | boolean              | When set to true, it auto-computes the barWidth and spacing to fit the chart in the available width / parentWidth                                 | false               |
+| parentWidth                  | number               | The width of the parent View or the width that the chart should auto-fit into when `adjustToWidth` is true                                        | screenWidth         |
+| showValuesAsTopLabel         | boolean              | When set to true, shows the value as a label at the top of the bar                                                                                | false               |
+| topLabelContainerStyle       | object               | style of the top label container                                                                                                                  | \_                  |
+| topLabelTextStyle            | object               | text style for the top labels that appear at the top of bars                                                                                      | \_                  |
 
 #### lineConfig
 
@@ -77,6 +89,10 @@ type lineConfigType = {
   showArrow?: boolean;
   arrowConfig?: arrowType;
   isSecondary?: boolean;
+  focusEnabled?: boolean;
+  focusedDataPointColor?: ColorValue;
+  focusedDataPointRadius?: number;
+  focusedDataPointIndex?: number;
 };
 type arrowType = {
   length?: number;
@@ -132,8 +148,12 @@ defaultLineConfig = {
     showArrowBase: true,
   },
   isSecondary: false,
+  focusEnabled: false,
+  focusedDataPointColor: LineDefaults.focusedDataPointColor, // 'orange'
+  focusedDataPointRadius: LineDefaults.dataPointsRadius,
 };
 ```
+
 #### FocusedBarConfig
 
 ```ts
@@ -150,6 +170,21 @@ type FocusedBarConfig = {
   barInnerComponent?: (item?: barDataItem, index?: number) => ReactNode;
 };
 ```
+
+#### CustomBackground
+
+```ts
+type CustomBackground = {
+  color?: ColorValue
+  component?: Function
+  horizontalShift?: number
+  verticalShift?: number
+  height?: number
+  width?: number
+  widthAdjustment?: number
+}
+```
+
 ---
 
 **Alert!**\
@@ -200,117 +235,126 @@ The properties of this line chart can be controlled using the `lineConfig` prop 
 
 ### Item description (barDataItem)
 
-| Key                        | Value type | Description                                                                    |
-| -------------------------- | ---------- | ------------------------------------------------------------------------------ |
-| value                      | number     | Value of the item representing height of the bar                               |
-| barWidth                   | number     | Width of the bar                                                               |
-| onPress                    | function   | Function called on pressing the bar                                            |
-| onLongPress                | function   | Function called on long pressing the bar                                       |
-| onPressOut                 | Function   | Callback function called on press out of a bar                                 |
-| disablePress               | boolean    | Prop to disable the press action, defaults to false                            |
-| frontColor                 | ColorValue | Color of the bar                                                               |
-| sideColor                  | ColorValue | Color of the side view of the bar, only for 3 D                                |
-| sideWidth                  | number     | Width of the side view of the bar, only for 3 D                                |
-| topColor                   | ColorValue | Color of the top view of the bar, only for 3 D                                 |
-| barStyle                   | object     | style object for the Bars                                                      |
-| showGradient               | boolean    | Prop to enable linear gradient for the bar color, defaults to false            |
-| gradientColor              | ColorValue | Along with frontColor, this prop constitutes the 2 colors for gradient         |
-| label                      | string     | Label text appearing below the bar (under the X axis)                          |
-| labelWidth                 | number     | Width of the Label text appearing below the bar (under the X axis)             |
-| labelTextStyle             | object     | Style object for the label text appearing below the bar                        |
-| labelComponent             | Component  | Custom label component appearing below the bar                                 |
-| topLabelComponent          | Component  | Custom component appearing above the bar                                       |
-| topLabelContainerStyle     | object     | Style object for the container of the custom component appearing above the bar |
-| cappedBars                 | boolean    | To show caps on the top of bar                                                 |
-| capThickness               | number     | Thickness of the bar cap                                                       |
-| capColor                   | ColorValue | Color of the bar cap                                                           |
-| capRadius                  | number     | Border radius of the bar cap                                                   |
-| barBorderRadius            | number     | Border radius of the bar                                                       |
-| barBorderTopLeftRadius     | number     | Top left border radius of the bar                                              |
-| barBorderTopRightRadius    | number     | Top right border radius of the bar                                             |
-| barBorderBottomLeftRadius  | number     | Bottom left border radius of the bar                                           |
-| barBorderBottomRightRadius | number     | Bottom right border radius of the bar                                          |
-| barMarginBottom            | number     | margin at the bottom of the bar (above X axis)                                 |
-| spacing                    | number     | Distance of the next Bar from the currennt Bar                                 |
-| barBackgroundPattern       | Component  | A svg component containing the background pattern for bars                     |
-| patternId                  | String     | ID of the pattern component                                                    |
-| leftShiftForTooltip        | number     | The distance by which the tooltip component should shift towards left          |
-| showXAxisIndex             | boolean    | show small graduation at the X axis for the corresponding bar                  |
+| Key                        | Value type | Description                                                                           |
+| -------------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| value                      | number     | Value of the item representing height of the bar                                      |
+| barWidth                   | number     | Width of the bar                                                                      |
+| onPress                    | function   | Function called on pressing the bar                                                   |
+| onLongPress                | function   | Function called on long pressing the bar                                              |
+| onPressOut                 | Function   | Callback function called on press out of a bar                                        |
+| disablePress               | boolean    | Prop to disable the press action, defaults to false                                   |
+| frontColor                 | ColorValue | Color of the bar                                                                      |
+| sideColor                  | ColorValue | Color of the side view of the bar, only for 3 D                                       |
+| sideWidth                  | number     | Width of the side view of the bar, only for 3 D                                       |
+| topColor                   | ColorValue | Color of the top view of the bar, only for 3 D                                        |
+| barStyle                   | object     | style object for the Bars                                                             |
+| showGradient               | boolean    | Prop to enable linear gradient for the bar color, defaults to false                   |
+| gradientColor              | ColorValue | Along with frontColor, this prop constitutes the 2 colors for gradient                |
+| label                      | string     | Label text appearing below the bar (under the X axis)                                 |
+| labelWidth                 | number     | Width of the Label text appearing below the bar (under the X axis)                    |
+| labelTextStyle             | object     | Style object for the label text appearing below the bar                               |
+| labelComponent             | Component  | Custom label component appearing below the bar                                        |
+| secondaryLabel             | string     | Label text appearing above the secondary X-axis (at the top of the chart)             |
+| secondaryLabelComponent    | Component  | Custom label component appearing above the secondary X-axis (at the top of the chart) |
+| secondaryLabelTextStyle    | object     | Style object for the label text of secondary X-axis (at the top of the chart)         |
+| labelsDistanceFromXaxis    | number     | Distance of the X Axis label from the X axis                                          |
+| topLabelComponent          | Component  | Custom component appearing above the bar                                              |
+| topLabelContainerStyle     | object     | Style object for the container of the custom component appearing above the bar        |
+| cappedBars                 | boolean    | To show caps on the top of bar                                                        |
+| capThickness               | number     | Thickness of the bar cap                                                              |
+| capColor                   | ColorValue | Color of the bar cap                                                                  |
+| capRadius                  | number     | Border radius of the bar cap                                                          |
+| barBorderWidth             | number     | Border width of the bar                                                               |
+| barBorderColor             | ColorValue | Border color of the bar                                                               |
+| barBorderRadius            | number     | Border radius of the bar                                                              |
+| barBorderTopLeftRadius     | number     | Top left border radius of the bar                                                     |
+| barBorderTopRightRadius    | number     | Top right border radius of the bar                                                    |
+| barBorderBottomLeftRadius  | number     | Bottom left border radius of the bar                                                  |
+| barBorderBottomRightRadius | number     | Bottom right border radius of the bar                                                 |
+| barMarginBottom            | number     | margin at the bottom of the bar (above X axis)                                        |
+| spacing                    | number     | Distance of the next Bar from the currennt Bar                                        |
+| barBackgroundPattern       | Component  | A svg component containing the background pattern for bars                            |
+| patternId                  | String     | ID of the pattern component                                                           |
+| leftShiftForTooltip        | number     | The distance by which the tooltip component should shift towards left                 |
+| showXAxisIndex             | boolean    | show small graduation at the X axis for the corresponding bar                         |
 
 ---
 
 ### Axes and rules related props
 
-| Prop                           | Type                      | Description                                                                                                    | Default value                |
-| ------------------------------ | ------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| xAxisLength                    | number                    | X axis length                                                                                                  | width of the chart           |
-| xAxisColor                     | ColorValue                | X axis color                                                                                                   | black                        |
-| xAxisThickness                 | number                    | X axis thickness                                                                                               | 1                            |
-| yAxisColor                     | ColorValue                | Y axis color                                                                                                   | black                        |
-| yAxisThickness                 | number                    | Y axis thickness                                                                                               | 1                            |
-| yAxisExtraHeight               | number                    | Extra length of Y axis at the top                                                                              | (height / 20)                |
-| xAxisType                      | RuleType                  | solid or dotted/dashed                                                                                         | solid                        |
-| yAxisLabelWidth                | number                    | Width of the Y axis Label container                                                                            | 35                           |
-| yAxisTextStyle                 | object                    | Style object for the Y axis text style                                                                         | \_                           |
-| yAxisTextNumberOfLines         | number                    | Number of lines for y axis label text                                                                          | 1                            |
-| yAxisLabelContainerStyle       | object                    | Style object for the Y axis label container                                                                    | \_                           |
-| trimYAxisAtTop                 | boolean                   | Removes the extra length of the Y axis from the top                                                            | false                        |
-| horizontalRulesStyle           | object                    | Style object for the horizontal rules container                                                                | \_                           |
-| showFractionalValues           | boolean                   | Allow fractional values for the Y axis label                                                                   | false                        |
-| roundToDigits                  | number                    | Rounds the y axis values to given number of digits after decimal point                                         | 1                            |
-| yAxisLabelPrefix               | String                    | The String prepended to the y axis label text (for example- '$')                                               | ''                           |
-| yAxisLabelSuffix               | String                    | The String appended to the y axis label text                                                                   | ''                           |
-| hideYAxisText                  | boolean                   | To hide Y axis label text                                                                                      | false                        |
-| formatYLabel                   | (label: string) => string | a callback function that takes the label generated by the library and modifies it.                             | \_                           |
-| yAxisSide                      | String                    | Tells which side of the chart, should the y axis be present, defaults to 'left'                                | 'left'                       |
-| rulesLength                    | number                    | Length of the horizontal rules                                                                                 | width of the chart           |
-| rulesColor                     | ColorValue                | Color of the horizontal rules                                                                                  | lightgray                    |
-| rulesThickness                 | number                    | Thickness of the horizontal rules                                                                              | 1                            |
-| hideRules                      | boolean                   | To hide the horizontal rules                                                                                   | false                        |
-| rulesType                      | RuleType                  | solid or dotted/dashed                                                                                         | solid                        |
-| dashWidth                      | number                    | width of each dash                                                                                             | 4                            |
-| dashGap                        | number                    | gap between 2 dashes                                                                                           | 8                            |
-| rulesConfigArray               | Array<RulesConfig>        | Array of rulesConfig objects, used to customise the properties (like color, type etc) of specific rules        | \_                           |
-| showReferenceLine1             | boolean                   | show reference line                                                                                            | false                        |
-| referenceLine1Config           | referenceConfigType       | properties of reference line like thickness, color etc (described below the table)                             | \_                           |
-| referenceLine1Position         | number                    | position of reference line                                                                                     | containerHeight / 2          |
-| showReferenceLine2             | boolean                   | show second reference line                                                                                     | false                        |
-| referenceLine2Config           | referenceConfigType       | properties of reference line like thickness, color etc (described below the table)                             | \_                           |
-| referenceLine2Position         | number                    | position of second reference line                                                                              | 3\*containerHeight / 2       |
-| showReferenceLine3             | boolean                   | show third reference line                                                                                      | false                        |
-| referenceLine3Config           | referenceConfigType       | properties of reference line like thickness, color etc (described below the table)                             | \_                           |
-| referenceLine3Position         | number                    | position of third reference line                                                                               | containerHeight / 3          |
-| referenceLinesOverChartContent | boolean                   | used to render the reference lines over the rest of the chart content.                                         | true                         |
-| showVerticalLines              | boolean                   | To show vertical lines                                                                                         | false                        |
-| verticalLinesColor             | ColorValue                | Color of the vertical lines                                                                                    | lightgray                    |
-| verticallinesThickness         | number                    | Thickness of the vertical lines                                                                                | 1                            |
-| verticalLinesHeight            | number                    | Height of the vertical lines                                                                                   | chart height                 |
-| verticalLinesStrokeDashArray   | Array<number>             | Array of 2 numbers denoting the dashWidth and dashGap of the lines. Used to render dashed/dotted vertical line | ''                           |
-| verticalLinesShift             | number                    | vertical lines are aligned with bars. Shift them left or right using +ve or -ve value of verticalLinesShift    | 0                            |
-| verticalLinesZIndex            | number                    | Z index of the vertical lines                                                                                  | -1                           |
-| noOfVerticalLines              | number                    | Number of vertical lines displayed                                                                             | data.length                  |
-| verticalLinesSpacing           | number                    | Distance between consecutive vertical lines                                                                    | spacing                      |
-| showXAxisIndices               | boolean                   | To show the pointers on the X axis                                                                             | false                        |
-| xAxisIndicesHeight             | number                    | Height of the pointers on the X axis                                                                           | 2                            |
-| xAxisIndicesWidth              | number                    | Width of the pointers on the X axis                                                                            | 4                            |
-| xAxisIndicesColor              | ColorValue                | Color of the pointers on the X axis                                                                            | black                        |
-| showYAxisIndices               | boolean                   | To show the pointers on the Y axis                                                                             | false                        |
-| yAxisIndicesHeight             | number                    | Height of the pointers on the Y axis                                                                           | 2                            |
-| yAxisIndicesWidth              | number                    | Width of the pointers on the Y axis                                                                            | 4                            |
-| yAxisIndicesColor              | ColorValue                | Color of the pointers on the X axis                                                                            | black                        |
-| yAxisLabelTexts                | Array<string>             | Array of label texts to be displayed along y axis                                                              | null                         |
-| xAxisLabelTexts                | Array<string>             | Array of label texts to be displayed below x axis                                                              | null                         |
-| xAxisLabelTextStyle            | object                    | Style of label texts to be displayed below x axis                                                              | null                         |
-| rotateLabel                    | boolean                   | To rotate the X axis labels (by 60deg)                                                                         | false                        |
-| hideAxesAndRules               | boolean                   | To hide axes, rules, labels altogether                                                                         | false                        |
-| hideOrigin                     | boolean                   | To hide the y Axis label at origin (i.e. 0)                                                                    | false                        |
-| labelWidth                     | number                    | Width of the Label text appearing below the bar (under the X axis)                                             | barWidth                     |
-| xAxisTextNumberOfLines         | number                    | Number of lines for x axis label text                                                                          | 1                            |
-| xAxisLabelsHeight              | number                    | Height of X axis labels container                                                                              | xAxisTextNumberOfLines \* 18 |
-| xAxisLabelsVerticalShift       | number                    | prop to adjust the vertical position of X axis labels (move X axis labels up or down)                          | 0                            |
-| labelsExtraHeight              | number                    | used to display large rotated labels on X-axis (use this only when using the **rotateLabel** prop)             | 0                            |
-| secondaryYAxis                 | secondaryYAxisType        | displays and controls the properties of the secondary Y axis on the right side                                 | null                         |
-| secondaryData                  | Array of items            | the secondary data that will be rendered along the secondary Y axis                                            | undefined                    |
+| Prop                           | Type                          | Description                                                                                                    | Default value                |
+| ------------------------------ | ----------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| xAxisLength                    | number                        | X axis length                                                                                                  | width of the chart           |
+| xAxisColor                     | ColorValue                    | X axis color                                                                                                   | black                        |
+| xAxisThickness                 | number                        | X axis thickness                                                                                               | 1                            |
+| yAxisColor                     | ColorValue                    | Y axis color                                                                                                   | black                        |
+| yAxisThickness                 | number                        | Y axis thickness                                                                                               | 1                            |
+| yAxisExtraHeight               | number                        | Extra length of Y axis at the top                                                                              | (height / 20)                |
+| xAxisType                      | RuleType                      | solid or dotted/dashed                                                                                         | solid                        |
+| yAxisLabelWidth                | number                        | Width of the Y axis Label container                                                                            | 35                           |
+| yAxisTextStyle                 | object                        | Style object for the Y axis text style                                                                         | \_                           |
+| yAxisTextNumberOfLines         | number                        | Number of lines for y axis label text                                                                          | 1                            |
+| yAxisLabelContainerStyle       | object                        | Style object for the Y axis label container                                                                    | \_                           |
+| trimYAxisAtTop                 | boolean                       | Removes the extra length of the Y axis from the top                                                            | false                        |
+| horizontalRulesStyle           | object                        | Style object for the horizontal rules container                                                                | \_                           |
+| showFractionalValues           | boolean                       | Allow fractional values for the Y axis label                                                                   | false                        |
+| roundToDigits                  | number                        | Rounds the y axis values to given number of digits after decimal point                                         | 1                            |
+| yAxisLabelPrefix               | String                        | The String prepended to the y axis label text (for example- '$')                                               | ''                           |
+| yAxisLabelSuffix               | String                        | The String appended to the y axis label text                                                                   | ''                           |
+| hideYAxisText                  | boolean                       | To hide Y axis label text                                                                                      | false                        |
+| formatYLabel                   | (label: string) => string     | a callback function that takes the label generated by the library and modifies it.                             | \_                           |
+| yAxisSide                      | String                        | Tells which side of the chart, should the y axis be present, defaults to 'left'                                | 'left'                       |
+| rulesLength                    | number                        | Length of the horizontal rules                                                                                 | width of the chart           |
+| rulesColor                     | ColorValue                    | Color of the horizontal rules                                                                                  | lightgray                    |
+| rulesThickness                 | number                        | Thickness of the horizontal rules                                                                              | 1                            |
+| hideRules                      | boolean                       | To hide the horizontal rules                                                                                   | false                        |
+| rulesType                      | RuleType                      | solid or dotted/dashed                                                                                         | solid                        |
+| dashWidth                      | number                        | width of each dash                                                                                             | 4                            |
+| dashGap                        | number                        | gap between 2 dashes                                                                                           | 8                            |
+| rulesConfigArray               | Array<RulesConfig>            | Array of rulesConfig objects, used to customise the properties (like color, type etc) of specific rules        | \_                           |
+| showReferenceLine1             | boolean                       | show reference line                                                                                            | false                        |
+| referenceLine1Config           | referenceConfigType           | properties of reference line like thickness, color etc (described below the table)                             | \_                           |
+| referenceLine1Position         | number                        | position of reference line                                                                                     | containerHeight / 2          |
+| showReferenceLine2             | boolean                       | show second reference line                                                                                     | false                        |
+| referenceLine2Config           | referenceConfigType           | properties of reference line like thickness, color etc (described below the table)                             | \_                           |
+| referenceLine2Position         | number                        | position of second reference line                                                                              | 3\*containerHeight / 2       |
+| showReferenceLine3             | boolean                       | show third reference line                                                                                      | false                        |
+| referenceLine3Config           | referenceConfigType           | properties of reference line like thickness, color etc (described below the table)                             | \_                           |
+| referenceLine3Position         | number                        | position of third reference line                                                                               | containerHeight / 3          |
+| referenceLinesOverChartContent | boolean                       | used to render the reference lines over the rest of the chart content.                                         | true                         |
+| showVerticalLines              | boolean                       | To show vertical lines                                                                                         | false                        |
+| verticalLinesColor             | ColorValue                    | Color of the vertical lines                                                                                    | lightgray                    |
+| verticallinesThickness         | number                        | Thickness of the vertical lines                                                                                | 1                            |
+| verticalLinesHeight            | number                        | Height of the vertical lines                                                                                   | chart height                 |
+| verticalLinesStrokeDashArray   | Array<number>                 | Array of 2 numbers denoting the dashWidth and dashGap of the lines. Used to render dashed/dotted vertical line | ''                           |
+| verticalLinesShift             | number                        | vertical lines are aligned with bars. Shift them left or right using +ve or -ve value of verticalLinesShift    | 0                            |
+| verticalLinesZIndex            | number                        | Z index of the vertical lines                                                                                  | -1                           |
+| noOfVerticalLines              | number                        | Number of vertical lines displayed                                                                             | data.length                  |
+| verticalLinesSpacing           | number                        | Distance between consecutive vertical lines                                                                    | spacing                      |
+| verticalLinesStrokeLinecap     | 'butt' \| 'round' \| 'square' | Linecap of the vertical lines (see `stroke-linecap` in svg)                                                    | 'butt'                       |
+| showXAxisIndices               | boolean                       | To show the pointers on the X axis                                                                             | false                        |
+| xAxisIndicesHeight             | number                        | Height of the pointers on the X axis                                                                           | 2                            |
+| xAxisIndicesWidth              | number                        | Width of the pointers on the X axis                                                                            | 4                            |
+| xAxisIndicesColor              | ColorValue                    | Color of the pointers on the X axis                                                                            | black                        |
+| showYAxisIndices               | boolean                       | To show the pointers on the Y axis                                                                             | false                        |
+| yAxisIndicesHeight             | number                        | Height of the pointers on the Y axis                                                                           | 2                            |
+| yAxisIndicesWidth              | number                        | Width of the pointers on the Y axis                                                                            | 4                            |
+| yAxisIndicesColor              | ColorValue                    | Color of the pointers on the X axis                                                                            | black                        |
+| yAxisLabelTexts                | Array<string>                 | Array of label texts to be displayed along y axis                                                              | null                         |
+| xAxisLabelTexts                | Array<string>                 | Array of label texts to be displayed below x axis                                                              | null                         |
+| xAxisLabelTextStyle            | object                        | Style of label texts to be displayed below x axis                                                              | null                         |
+| rotateLabel                    | boolean                       | To rotate the X axis labels (by 60deg)                                                                         | false                        |
+| hideAxesAndRules               | boolean                       | To hide axes, rules, labels altogether                                                                         | false                        |
+| hideOrigin                     | boolean                       | To hide the y Axis label at origin (i.e. 0)                                                                    | false                        |
+| labelWidth                     | number                        | Width of the Label text appearing below the bar (under the X axis)                                             | barWidth                     |
+| labelsDistanceFromXaxis        | number                        | Distance of the X Axis label from the X axis                                                                   | 0                            |
+| xAxisTextNumberOfLines         | number                        | Number of lines for x axis label text                                                                          | 1                            |
+| xAxisLabelsHeight              | number                        | Height of X axis labels container                                                                              | xAxisTextNumberOfLines \* 18 |
+| xAxisLabelsVerticalShift       | number                        | prop to adjust the vertical position of X axis labels (move X axis labels up or down)                          | 0                            |
+| labelsExtraHeight              | number                        | used to display large rotated labels on X-axis (useful when using the **rotateLabel** prop)                    | 0                            |
+| secondaryYAxis                 | secondaryYAxisType            | displays and controls the properties of the secondary Y axis on the right side                                 | null                         |
+| secondaryData                  | Array of items                | the secondary data that will be rendered along the secondary Y axis                                            | undefined                    |
+| secondaryXAxis                 | XAxisConfig                   | properties of the secondary X-axis (appearing at the top of the chart)                                         | values of the primary X-axis |
 
 **Note** If you are setting yAxisSide to 'right', make sure to specify the width of the chart, using the `width` prop.
 
@@ -344,6 +388,19 @@ type referenceConfigType = {
   zIndex: number;
   stripBehindBars: boolean;
 };
+```
+
+XAxisConfig has following properties-
+
+```ts
+type XAxisConfig {
+  thickness?: number
+  color?: ColorValue
+  labelsDistanceFromXaxis?: number
+  labelsHeight?: number
+  labelsTextStyle?: any
+  labelTexts?: string[]
+}
 ```
 
 ---
@@ -517,19 +574,20 @@ The stackData passed to the BarChart component is an array of objects.\
 Each object contains a mandatory key named stacks.\
 The value corresponding to the stacks key is an array of objects, each object representing a section of the stack.
 
-| Prop                         | Type                  | Description                                                                                  | Default value        |
-| ---------------------------- | --------------------- | -------------------------------------------------------------------------------------------- | -------------------- |
-| stackData                    | Array of stack arrays | A stack array represents a stack of bars in the bar chart. It is described in the next table | false                |
-| barBorderRadius              | number                | Border radius of each bar of the stack                                                       | 0                    |
-| barBorderTopLeftRadius       | number                | Top left border radius of each bar of the stack                                              | barBorderRadius \| 0 |
-| barBorderTopRightRadius      | number                | Top right border radius of each bar of the stack                                             | barBorderRadius \| 0 |
-| barBorderBottomLeftRadius    | number                | Bottom left border radius of each bar of the stack                                           | barBorderRadius \| 0 |
-| barBorderBottomRightRadius   | number                | Bottom right border radius of each bar of the stack                                          | barBorderRadius \| 0 |
-| stackBorderRadius            | number                | Border radius of the top and bottom bars of the stack                                        |
-| stackBorderTopLeftRadius     | number                | Top left border radius of the top bar of the stack                                           |
-| stackBorderTopRightRadius    | number                | Top right border radius of the top bar of the stack                                          |
-| stackBorderBottomLeftRadius  | number                | Bottom left border radius of the bottom bar of the stack                                     |
-| stackBorderBottomRightRadius | number                | Bottom right border radius of the bottom bar of the stack                                    |
+| Prop                             | Type                  | Description                                                                                                               | Default value        |
+| -------------------------------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| stackData                        | Array of stack arrays | A stack array represents a stack of bars in the bar chart. It is described in the next table                              | false                |
+| barBorderRadius                  | number                | Border radius of each bar of the stack                                                                                    | 0                    |
+| barBorderTopLeftRadius           | number                | Top left border radius of each bar of the stack                                                                           | barBorderRadius \| 0 |
+| barBorderTopRightRadius          | number                | Top right border radius of each bar of the stack                                                                          | barBorderRadius \| 0 |
+| barBorderBottomLeftRadius        | number                | Bottom left border radius of each bar of the stack                                                                        | barBorderRadius \| 0 |
+| barBorderBottomRightRadius       | number                | Bottom right border radius of each bar of the stack                                                                       | barBorderRadius \| 0 |
+| stackBorderRadius                | number                | Border radius of the top and bottom bars of the stack                                                                     |
+| stackBorderTopLeftRadius         | number                | Top left border radius of the top bar of the stack                                                                        |
+| stackBorderTopRightRadius        | number                | Top right border radius of the top bar of the stack                                                                       |
+| stackBorderBottomLeftRadius      | number                | Bottom left border radius of the bottom bar of the stack                                                                  |
+| stackBorderBottomRightRadius     | number                | Bottom right border radius of the bottom bar of the stack                                                                 |
+| autoShiftLabelsForNegativeStacks | boolean               | Whether the x axis labels should auto shift to a position below the bar, if the bar is under x-axis due to negative value |
 
 **Note** The `frontColor` prop is replaced by `color` prop in Stacked Bar charts.
 

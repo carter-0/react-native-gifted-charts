@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import {useEffect} from 'react';
 import {
   View,
   TouchableOpacity,
@@ -8,12 +8,13 @@ import {
   UIManager,
 } from 'react-native';
 import Svg, {Defs, Rect} from 'react-native-svg';
-import LinearGradient from "../Components/common/LinearGradient";
+import LinearGradient from '../Components/common/LinearGradient';
 import {
   useRenderStackBars,
   BarDefaults,
   StackedBarChartPropsType,
 } from 'gifted-charts-core';
+import Tooltip from '../Components/BarSpecificComponents/tooltip';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -24,6 +25,7 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
   const {
     barBackgroundPattern,
     patternId,
+    stackData,
     item,
     index,
     containerHeight,
@@ -34,12 +36,9 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
     xAxisTextNumberOfLines,
     xAxisLabelsVerticalShift,
     renderTooltip,
-    leftShiftForTooltip,
-    leftShiftForLastIndexTooltip,
     selectedIndex,
     setSelectedIndex,
     activeOpacity,
-    stackData,
     animationDuration = BarDefaults.animationDuration,
     barBorderWidth,
     barBorderColor,
@@ -49,9 +48,17 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
     stackBorderBottomLeftRadius,
     stackBorderBottomRightRadius,
     showValuesAsTopLabel,
+    autoShiftLabelsForNegativeStacks = true,
+    labelsDistanceFromXaxis = 0,
+    horizontal,
+    secondaryStepHeight,
+    secondaryStepValue,
+    secondaryNegativeStepHeight,
+    secondaryNegativeStepValue,
+    barMarginBottom,
   } = props;
   const {
-    cotainsNegative,
+    containsNegativeValue,
     noAnimation,
     localBarInnerComponent,
     borderRadius,
@@ -59,7 +66,6 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
     borderTopRightRadius,
     borderBottomLeftRadius,
     borderBottomRightRadius,
-    leftSpacing,
     disablePress,
     totalHeight,
     height,
@@ -68,25 +74,39 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
     getPosition,
     lowestBarPosition,
     getStackBorderRadii,
-  } = useRenderStackBars(props);
+    tooltipProps,
+  } = useRenderStackBars({
+    ...props,
+    secondaryStepHeight,
+    secondaryStepValue,
+    secondaryNegativeStepHeight,
+    secondaryNegativeStepValue,
+  });
 
-  const renderLabel = (label: String, labelTextStyle: any) => {
+  const renderLabel = (label: string, labelTextStyle: any) => {
     return (
       <View
         style={[
           {
             width:
-              (item.stacks[0].barWidth || props.barWidth || 30) + spacing / 2,
+              (item.labelWidth ||
+                props.labelWidth ||
+                item.stacks[0].barWidth ||
+                props.barWidth ||
+                30) +
+              spacing / 2,
             position: 'absolute',
-            bottom: rotateLabel
-              ? -40
-              : -6 - xAxisTextNumberOfLines * 18 + lowestBarPosition,
+            bottom: autoShiftLabelsForNegativeStacks
+              ? containsNegativeValue
+                ? -0
+                : -6 - xAxisTextNumberOfLines * 18
+              : -labelsDistanceFromXaxis - 6 - xAxisTextNumberOfLines * 18,
           },
           rotateLabel
-            ? props.horizontal
+            ? horizontal
               ? {transform: [{rotate: '330deg'}]}
               : {transform: [{rotate: '60deg'}]}
-            : props.horizontal
+            : horizontal
               ? {transform: [{rotate: '-90deg'}]}
               : {},
         ]}>
@@ -125,6 +145,7 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
   };
 
   const static2DSimple = () => {
+    let remainingBarMarginBottom = barMarginBottom;
     return (
       <>
         <TouchableOpacity
@@ -178,14 +199,28 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
                 stackBorderBottomRightRadius ??
                 stackBorderRadius,
               overflow: lowestBarPosition ? 'visible' : 'hidden',
+              // bottom: barMarginBottom
             },
           ]}>
           {item.stacks.map((stackItem, index) => {
             const borderRadii = getStackBorderRadii(item, index);
-            const barHeight = getBarHeight(
-              stackItem.value,
-              stackItem.marginBottom,
+
+            // compute marginBottom here
+
+            let barHeight = getBarHeight(stackItem.value, 0);
+
+            const marginBottom = Math.max(
+              stackItem.marginBottom ?? 0,
+              remainingBarMarginBottom,
             );
+            const deductedMargin = Math.min(barHeight, marginBottom);
+
+            remainingBarMarginBottom = Math.max(
+              0,
+              remainingBarMarginBottom - deductedMargin,
+            );
+
+            barHeight -= deductedMargin;
 
             return (
               <TouchableOpacity
@@ -195,7 +230,7 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
                 disabled={disablePress || !stackItem.onPress}
                 style={{
                   position: 'absolute',
-                  bottom: getPosition(index) + (stackItem.marginBottom || 0),
+                  bottom: getPosition(index, barHeight) + deductedMargin,
                   width: '100%',
                   height: barHeight,
                   backgroundColor:
@@ -237,11 +272,11 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
                   : barBackgroundPattern?.()}
               </Defs>
               <Rect
-                stroke="transparent"
+                stroke="none"
                 x="1"
                 y="1"
                 width="100%"
-                height="100%"
+                height={totalHeight}
                 fill={`url(#${item.patternId || patternId})`}
               />
             </Svg>
@@ -257,7 +292,7 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
             style={[
               {
                 position: 'absolute',
-                top: cotainsNegative
+                top: containsNegativeValue
                   ? 0
                   : (item.barWidth || props.barWidth || 30) * -1,
                 height: item.barWidth || props.barWidth || 30,
@@ -265,14 +300,19 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               },
-              cotainsNegative && {transform: [{translateY: totalHeight * 2}]},
-              props.horizontal &&
+              containsNegativeValue && {
+                transform: [{translateY: totalHeight * 2}],
+              },
+              horizontal &&
                 !props.intactTopLabel && {transform: [{rotate: '270deg'}]},
               item.topLabelContainerStyle,
             ]}>
             {showValuesAsTopLabel ? (
-              <Text style={item.topLabelTextStyle}>
-                {item.stacks.reduce((acc, stack) => acc + stack.value, 0)}
+              <Text style={item.topLabelTextStyle ?? props.topLabelTextStyle}>
+                {stackData[index].stacks.reduce(
+                  (acc, stack) => acc + stack.value,
+                  0,
+                )}
               </Text>
             ) : (
               item.topLabelComponent?.()
@@ -293,7 +333,6 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
           bottom: 0,
           height: height,
           width: '100%',
-          overflow: 'hidden',
         }}>
         {static2DSimple()}
       </View>
@@ -305,7 +344,7 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
       <View
         pointerEvents={
           props.pointerConfig
-            ? props.pointerConfig.pointerEvents ?? 'none'
+            ? (props.pointerConfig.pointerEvents ?? 'none')
             : 'auto'
         }
         style={[
@@ -315,33 +354,15 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
             width: item.stacks[0].barWidth || props.barWidth || 30,
             height: totalHeight,
             marginRight: spacing,
+            transform: [
+              {
+                translateY:
+                  (containerHeight || 200) -
+                  (totalHeight - 10 + xAxisLabelsVerticalShift),
+              },
+            ],
           },
-
-          props.pointerConfig
-            ? {
-                transform: [
-                  {
-                    translateY:
-                      (containerHeight || 200) -
-                      (totalHeight - 10 + xAxisLabelsVerticalShift),
-                  },
-                ],
-              }
-            : null,
         ]}>
-        {/* {props.showVerticalLines && (
-          <View
-            style={{
-              zIndex: props.verticalLinesZIndex,
-              position: 'absolute',
-              height: (containerHeight || 200) + 15,
-              width: props.verticalLinesThickness,
-              bottom: 0,
-              left: (item.barWidth || props.barWidth || 30) / 2,
-              backgroundColor: props.verticalLinesColor,
-            }}
-          />
-        )} */}
         {(props.showXAxisIndices || item.showXAxisIndex) && (
           <View
             style={{
@@ -362,19 +383,7 @@ const RenderStackBars = (props: StackedBarChartPropsType) => {
         {renderLabel(label || '', labelTextStyle)}
       </View>
       {renderTooltip && selectedIndex === index && (
-        <View
-          style={{
-            position: 'absolute',
-            bottom: totalHeight + 60,
-            left:
-              index === stackData.length - 1
-                ? leftSpacing - leftShiftForLastIndexTooltip
-                : leftSpacing -
-                  (item.leftShiftForTooltip ?? leftShiftForTooltip ?? 0),
-            zIndex: 1000,
-          }}>
-          {renderTooltip(item, index)}
-        </View>
+        <Tooltip {...tooltipProps} />
       )}
     </>
   );

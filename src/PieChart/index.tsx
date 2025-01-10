@@ -1,12 +1,11 @@
-import React from 'react';
-import {View} from 'react-native';
+import {Platform, View} from 'react-native';
 import {PieChartMain} from './main';
 import {PieChartPropsType, pieColors, usePieChart} from 'gifted-charts-core';
 
 export const PieChart = (props: PieChartPropsType) => {
   const {
     radius,
-    extraRadiusForFocused,
+    extraRadius,
     selectedIndex,
     setSelectedIndex,
     startAngle,
@@ -29,7 +28,10 @@ export const PieChart = (props: PieChartPropsType) => {
     paddingVertical,
   } = usePieChart(props);
 
-  const renderInnerCircle = (innerRadius, innerCircleBorderWidth) => {
+  const renderInnerCircle = (
+    innerRadius: number,
+    innerCircleBorderWidth: number,
+  ) => {
     if (props.centerLabelComponent || (donut && !isDataShifted)) {
       return (
         <View
@@ -46,13 +48,13 @@ export const PieChart = (props: PieChartPropsType) => {
                 canvasWidth / 2 -
                 innerRadius +
                 shiftInnerCenterX +
-                extraRadiusForFocused +
+                extraRadius +
                 paddingHorizontal / 2,
               top:
                 canvasHeight / 2 -
                 innerRadius +
                 shiftInnerCenterY +
-                extraRadiusForFocused +
+                extraRadius +
                 paddingVertical / 2,
               borderWidth: innerCircleBorderWidth,
               borderColor: innerCircleBorderColor,
@@ -93,9 +95,9 @@ export const PieChart = (props: PieChartPropsType) => {
     <View
       style={{
         height:
-          (radius + extraRadiusForFocused + paddingVertical / 2) *
+          (radius + extraRadius + paddingVertical / 2) *
           (props.semiCircle ? 1 : 2),
-        width: (radius + extraRadiusForFocused + paddingHorizontal / 2) * 2,
+        width: (radius + extraRadius + paddingHorizontal / 2) * 2,
         overflow: 'hidden',
       }}>
       <View style={{position: 'absolute'}}>
@@ -105,7 +107,7 @@ export const PieChart = (props: PieChartPropsType) => {
           setSelectedIndex={setSelectedIndex}
           paddingHorizontal={paddingHorizontal}
           paddingVertical={paddingVertical}
-          extraRadiusForFocused={extraRadiusForFocused}
+          extraRadius={extraRadius}
         />
       </View>
       {renderInnerCircle(innerRadius, innerCircleBorderWidth)}
@@ -117,42 +119,44 @@ export const PieChart = (props: PieChartPropsType) => {
             pointerEvents="box-none"
             style={{
               position: 'absolute',
-              top: -extraRadiusForFocused,
-              left: -extraRadiusForFocused,
+              top: -extraRadius,
+              left: -extraRadius,
+              zIndex: Platform.OS === 'web' ? -1 : 0, // was not getting displayed in web (using Expo)
             }}>
             <PieChartMain
               {...props}
               data={[
                 {
-                  value: props.data[selectedIndex].value,
-                  text: props.data[selectedIndex].text,
-                  color:
-                    props.data[selectedIndex].color ||
-                    pieColors[selectedIndex % 9],
-                  strokeColor:
-                    props.data[selectedIndex].strokeColor || undefined,
-                  strokeWidth:
-                    props.data[selectedIndex].strokeWidth || undefined,
-                  gradientCenterColor:
-                    props.data[selectedIndex].gradientCenterColor || undefined,
-                  shiftTextX: props.data[selectedIndex].shiftTextX || undefined,
-                  shiftTextY: props.data[selectedIndex].shiftTextY || undefined,
+                  ...props.data[selectedIndex],
+                  // value: props.data[selectedIndex].value,
+                  // text: props.data[selectedIndex].text,
+                  // color:
+                  //   props.data[selectedIndex].color ||
+                  //   pieColors[selectedIndex % 9],
+                  // strokeColor:
+                  //   props.data[selectedIndex].strokeColor || undefined,
+                  // strokeWidth:
+                  //   props.data[selectedIndex].strokeWidth || undefined,
+                  // gradientCenterColor:
+                  //   props.data[selectedIndex].gradientCenterColor || undefined,
+                  // shiftTextX: props.data[selectedIndex].shiftTextX || undefined,
+                  // shiftTextY: props.data[selectedIndex].shiftTextY || undefined,
                 },
                 {
                   value: total - props.data[selectedIndex].value,
-                  onPress: () => alert('black'),
+                  // onPress: () => alert('black'),
                   peripheral: true,
                   strokeWidth: 0,
                 },
               ]}
-              radius={radius + extraRadiusForFocused}
+              radius={radius + extraRadius}
               initialAngle={startAngle}
               innerRadius={props.innerRadius || radius / 2.5}
               isBiggerPie
               setSelectedIndex={setSelectedIndex}
               paddingHorizontal={paddingHorizontal}
               paddingVertical={paddingVertical}
-              extraRadiusForFocused={extraRadiusForFocused}
+              extraRadius={extraRadius}
             />
           </View>
         )}

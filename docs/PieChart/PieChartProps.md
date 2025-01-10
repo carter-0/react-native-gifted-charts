@@ -11,10 +11,11 @@
 | onPress                     | Function             | Callback function called on press of Pie sections (takes item and index as parameter)                     | null                                           |
 | focusOnPress                | boolean              | When set to true, the pressed section of the Pie chart will have a bigger radius, hence appear focused    | false                                          |
 | toggleFocusOnPress          | boolean              | When set to true, if the user presses an already focused pie section, it will be unfocused                | true                                           |
-| extraRadiusForFocused       | number               | Extra radius for the focused Pie section                                                                  | radius/10                                      |
+| extraRadius                 | number               | Extra radius for the focused Pie section                                                                  | showExternalLabels ? 40 : radius/10            |
 | inwardExtraLengthForFocused | number               | Extra length of focused Pie section towards the center (only for donut charts)                            | 0                                              |
 | sectionAutoFocus            | boolean              | In case you don't want focusOnPress but want a particular section to autofocus, this prop will be needed  | false                                          |
-| onLabelPress                | Function             | Callback function called on press of a Label (takes item and index as parameter)                          | onPress OR null                                |
+| focusedPieIndex             | number               | index of the initially focused Pie, works only when focusOnPress is true                                  | -1                                             |
+| onLabelPress (removed)      | Function             | Callback function called on press of a Label (takes item and index as parameter)                          | onPress OR null                                |
 | tiltAngle                   | Angle in deg         | The angle by which the chart should be tilted                                                             | '55deg' for 3D charts, otherwise 0             |
 | shadow                      | boolean              | Shadow to the Pie chart, when set to true, it enhances the 3D effect                                      | false                                          |
 | shadowColor                 | ColorValue           | Color of the shadow                                                                                       | lightgray                                      |
@@ -32,12 +33,45 @@
 | textBackgroundColor         | ColorValue           | Background color for the label texts                                                                      | white                                          |
 | textBackgroundRadius        | number               | Radius for the background of the text labels                                                              | textSize                                       |
 | showValuesAsLabels          | boolean              | When set to true, the values of the Pie sections are displayed as labels                                  | false                                          |
+| showTooltip                 | boolean              | When set to true, displays a tooltip on pressing                                                          | false                                          |
+| showValuesAsTooltipText     | boolean              | When set to true, the values of the Pie sections are displayed as tooltips (on pressing)                  | true                                           |
 | centerLabelComponent        | Function             | Component to be rendered at the center of the Pie chart                                                   | \_                                             |
 | semiCircle                  | boolean              | When set to true, renders the Pie Chart in a semi-circle. donut semiCircle charts look like a speed-meter | false                                          |
 | labelsPosition              | string               | Tells where inside the Pie sections should the labels be shown- 'onBorder', 'outward', 'inward' or 'mid'  | 'outward' for donut and semicircle, else 'mid' |
 | pieInnerComponent           | () => svg element    | Svg element to be rendered inside each Pie like a label (position controlled by 'labelsPosition' )        | \_                                             |
 | paddingHorizontal           | number               | horizontal padding in the chart svg component (useful to accomodate _"onBorder"_ labels)                  | 0                                              |
 | paddingVertical             | number               | vertical padding in the chart svg component (useful to accomodate _"onBorder"_ labels)                    | 0                                              |
+| showExternalLabels          | boolean              | To show labels for each Pie section outside the chart towards left or right based on its position         | false                                          |
+| labelLineConfig             | LabelLineConfig      | Object to configure the properties (like length, color, tailLength etc.) of external label's line         | \_                                             |
+| externalLabelComponent      | Function             | Component to be rendered as external labels for each Pie section                                          | \_                                             |
+
+### Tooltip
+
+When `showTooltip` is set to true, a tooltip appears on pressing any Pie section. The text inside the tooltip can be set using the `tooltipText` property in the data array. If `tooltipText` is not found, then the value of the `text` in the data array is rendered as tooltip text. If `text` is also not found then the numeric value of the Pie section is displayed as the tooltip text.
+
+The styling of the tooltip text is controlled by the same props that control the style of the label text. These props include-
+
+1. textColor
+2. textSize
+3. fontStyle
+4. fontWeight
+5. font (for fontFamily)
+
+Other props related to tooltip and their default values-
+
+```js
+PieTooltipDefaults = {
+  tooltipWidth: undefined, // takes the width of the tooltip text
+  persistTooltip: false,
+  tooltipDuration: 1000,
+  tooltipVerticalShift: 30,
+  tooltipHorizontalShift: 20,
+  showValuesAsTooltipText: true,
+  tooltipTextNoOfLines: 3,
+  tooltipBackgroundColor: 'rgba(20,20,20,0.8)',
+  tooltipBorderRadius: 4,
+};
+```
 
 #### initialAngle
 
@@ -70,35 +104,58 @@ The default value for labelsPosition is 'mid'. In case of donut and semicircle c
 
 **Note** if _labelsPosition_ is 'onBorder' then **paddingHorizontal** and **paddingVertical** have a default value equal to _textBackgroundRadius_
 
+### LabelLineConfig
+
+The `labelLineConfig` prop is an object of `LabelLineConfig` type described below-
+
+```ts
+type LabelLineConfig = {
+  length?: number; // default 10
+  tailLength?: number; // default 8
+  color?: ColorValue; // default 'black'
+  thickness?: number; // default 1
+  labelComponentWidth?: number; // default 20
+  labelComponentHeight?: number; // default 10
+  labelComponentMargin?: number; // default 4
+  avoidOverlappingOfLabels?: boolean; // default true
+};
+```
+
+**Note** if the external labels are getting cropped, you may need to use the `extraRadius` prop.
+
 ---
 
 ### Item description (pieDataItem)
 
-| Prop                 | Type              | Description                                                                                                             |
-| -------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| value                | number            | Value of the item, representing a section of the Pie chart                                                              |
-| shiftX               | number            | Translates (shifts) the particular section horizontally by given value                                                  |
-| shiftY               | number            | Translates (shifts) the particular section vertically by given value                                                    |
-| shiftTextX           | number            | Translates (shifts) the position of label text horizontally                                                             |
-| shiftTextY           | number            | Translates (shifts) the position of label text vertically                                                               |
-| shiftTextBackgroundX | number            | Shifts the background of label text horizontally (default value is shiftTextX)                                          |
-| shiftTextBackgroundY | number            | Shifts the background of label text vertically (default value is shiftTextY)                                            |
-| color                | ColorValue        | Color (background color) of the section                                                                                 |
-| text                 | string            | Label text for the sections                                                                                             |
-| textColor            | ColorValue        | Color of the text (label) inside the section                                                                            |
-| textSize             | number            | Size of the text (label) inside the section                                                                             |
-| fontStyle            | string            | Style of the text - 'normal', 'italic' or 'oblique'                                                                     |
-| fontWeight           | string            | Weight of the text - 'bold', 'bolder', 'lighter', '100', '200' etc                                                      |
-| font                 | string            | Font family of the text - 'Arial', 'Cursive', 'Comic Sans MS' etc                                                       |
-| textBackgroundColor  | ColorValue        | Background color for the label text                                                                                     |
-| textBackgroundRadius | number            | Radius for the background of the text label                                                                             |
-| labelPosition        | string            | Tells where inside the Pie sections should the labels be shown- 'onBorder', 'outward', 'inward' or 'mid'                |
-| onPress              | Function          | Callback function called on press of Pie sections (takes item and index as parameter)                                   |
-| onLabelPress         | Function          | Callback function called on press of a Label (takes item and index as parameter)                                        |
-| strokeWidth          | number            | Stroke (line) width for the Pie chart and its section                                                                   |
-| strokeColor          | ColorValue        | Stroke (line) color                                                                                                     |
-| focused              | boolean           | When set to true, the section for that item is focused, sectionAutoFocus must be set true in order to use this property |
-| pieInnerComponent    | () => svg element | Svg element to be rendered inside the Pie like a label (position controlled by 'labelsPosition' )                       |
+| Prop                   | Type              | Description                                                                                                             |
+| ---------------------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| value                  | number            | Value of the item, representing a section of the Pie chart                                                              |
+| shiftX                 | number            | Translates (shifts) the particular section horizontally by given value                                                  |
+| shiftY                 | number            | Translates (shifts) the particular section vertically by given value                                                    |
+| shiftTextX             | number            | Translates (shifts) the position of label text horizontally                                                             |
+| shiftTextY             | number            | Translates (shifts) the position of label text vertically                                                               |
+| shiftTextBackgroundX   | number            | Shifts the background of label text horizontally (default value is shiftTextX)                                          |
+| shiftTextBackgroundY   | number            | Shifts the background of label text vertically (default value is shiftTextY)                                            |
+| color                  | ColorValue        | Color (background color) of the section                                                                                 |
+| text                   | string            | Label text for the sections                                                                                             |
+| textColor              | ColorValue        | Color of the text (label) inside the section                                                                            |
+| textSize               | number            | Size of the text (label) inside the section                                                                             |
+| fontStyle              | string            | Style of the text - 'normal', 'italic' or 'oblique'                                                                     |
+| fontWeight             | string            | Weight of the text - 'bold', 'bolder', 'lighter', '100', '200' etc                                                      |
+| font                   | string            | Font family of the text - 'Arial', 'Cursive', 'Comic Sans MS' etc                                                       |
+| textBackgroundColor    | ColorValue        | Background color for the label text                                                                                     |
+| textBackgroundRadius   | number            | Radius for the background of the text label                                                                             |
+| labelPosition          | LabelsPosition    | Tells where inside the Pie sections should the labels be shown- 'onBorder', 'outward', 'inward' or 'mid'                |
+| tooltipText            | string            | Tooltip text for the sections (if omitted, then 'text' will serve as the tooltip text)                                  |
+| tooltipComponent       | Function          | Custom tooltip component for the sections (callback function that accepts index as a parameter)                         |
+| onPress                | Function          | Callback function called on press of Pie sections (takes item and index as parameter)                                   |
+| onLabelPress (removed) | Function          | Callback function called on press of a Label (takes item and index as parameter)                                        |
+| strokeWidth            | number            | Stroke (line) width for the Pie chart and its section                                                                   |
+| strokeColor            | ColorValue        | Stroke (line) color                                                                                                     |
+| focused                | boolean           | When set to true, the section for that item is focused, sectionAutoFocus must be set true in order to use this property |
+| pieInnerComponent      | () => svg element | Svg element to be rendered inside the Pie like a label (position controlled by 'labelsPosition' )                       |
+| labelLineConfig        | LabelLineConfig   | Object to configure the properties (like length, color, tailLength etc.) of external label's line                       |
+| externalLabelComponent | Function          | Component to be rendered as external label for the Pie section                                                          |
 
 **Note** If we pass `shiftTextX`, the background will also shift (because the library assigns a default value of shiftTextBackgroundX = shiftTextX). This can be _overridden_ by manually passing **shiftTextBackgroundX**. Same applies to `shiftTextBackgroundY`
 
@@ -117,4 +174,4 @@ The default value for labelsPosition is 'mid'. In case of donut and semicircle c
 
 ## Animation and Curved paths
 
-Animation and curved paths are supported in **`<PieChartPro>`** component. It receives all the above props (same as the __`<PieChart>`__ component)
+Animation and curved paths are supported in **`<PieChartPro>`** component. It receives all the above props (same as the **`<PieChart>`** component)

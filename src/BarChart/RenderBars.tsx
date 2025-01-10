@@ -1,16 +1,12 @@
-import React from 'react';
 import {View, TouchableOpacity, Animated, Text} from 'react-native';
 import AnimatedThreeDBar from '../Components/AnimatedThreeDBar';
 import Animated2DWithGradient from './Animated2DWithGradient';
-import Cap from '../Components/BarSpecificComponents/cap';
-import BarBackgroundPattern from '../Components/BarSpecificComponents/barBackgroundPattern';
-import LinearGradient from "../Components/common/LinearGradient";
 import {
   getPropsForAnimated2DWithGradient,
   RenderBarsPropsType,
-  barDataItem,
-  AxesAndRulesDefaults,
+  useRenderBars,
 } from 'gifted-charts-core';
+import Tooltip from '../Components/BarSpecificComponents/tooltip';
 
 const RenderBars = (props: RenderBarsPropsType) => {
   const {
@@ -20,7 +16,6 @@ const RenderBars = (props: RenderBarsPropsType) => {
     maxValue,
     minHeight,
     spacing,
-    propSpacing,
     side,
     data,
     barBorderWidth,
@@ -32,37 +27,31 @@ const RenderBars = (props: RenderBarsPropsType) => {
     animationDuration,
     autoShiftLabels,
     label,
+    secondaryLabel,
     labelTextStyle,
+    secondaryLabelTextStyle,
     xAxisTextNumberOfLines,
     xAxisLabelsVerticalShift,
     renderTooltip,
-    leftShiftForTooltip,
-    leftShiftForLastIndexTooltip,
-    initialSpacing,
     selectedIndex,
     setSelectedIndex,
-    xAxisThickness = AxesAndRulesDefaults.xAxisThickness,
     horizontal,
     rtl,
-    intactTopLabel,
-    showValuesAsTopLabel,
-    topLabelContainerStyle,
-    topLabelTextStyle,
     pointerConfig,
     noOfSectionsBelowXAxis,
-    yAxisOffset,
+    barWidth,
+    labelsDistanceFromXaxis = 0,
+    secondaryXAxis,
+    secondaryNoOfSectionsBelowXAxis,
+    barMarginBottom = 0,
   } = props;
 
-  const barHeight = Math.max(
-    minHeight,
-    (Math.abs(item.value) * (containerHeight || 200)) / (maxValue || 200) -
-      xAxisThickness,
-  );
+  const {heightFactor, barHeight, tooltipProps} = useRenderBars(props);
 
   const {
     commonStyleForBar,
     barStyleWithBackground,
-    commonPropsFor2Dand3Dbars,
+    commonPropsFor2dAnd3dBars,
     isFocused,
     focusedBarConfig,
     localFrontColor,
@@ -71,15 +60,15 @@ const RenderBars = (props: RenderBarsPropsType) => {
   const itemOrPropsBarInnerComponent =
     item.barInnerComponent ?? props.barInnerComponent;
   const localBarInnerComponent = isFocused
-    ? focusedBarConfig?.barInnerComponent ?? itemOrPropsBarInnerComponent
+    ? (focusedBarConfig?.barInnerComponent ?? itemOrPropsBarInnerComponent)
     : itemOrPropsBarInnerComponent;
 
-  const barMarginBottom =
-    item.barMarginBottom === 0
-      ? 0
-      : item.barMarginBottom || props.barMarginBottom || 0;
-
-  const renderLabel = (label: String, labelTextStyle: any, value: number) => {
+  const renderLabel = (
+    top: boolean,
+    label: string,
+    labelTextStyle: any,
+    value: number,
+  ) => {
     return (
       <View
         style={[
@@ -88,16 +77,24 @@ const RenderBars = (props: RenderBarsPropsType) => {
               (item.labelWidth ||
                 props.labelWidth ||
                 item.barWidth ||
-                props.barWidth ||
-                30) + spacing,
+                barWidth) + spacing,
             left: spacing / -2,
             position: 'absolute',
             height: props.xAxisLabelsHeight ?? xAxisTextNumberOfLines * 18,
-            bottom:
-              (rotateLabel
-                ? -40
-                : -6 - xAxisTextNumberOfLines * 18 - xAxisLabelsVerticalShift) -
-              barMarginBottom,
+            bottom: top
+              ? (containerHeight || 200) +
+                (secondaryXAxis?.labelsDistanceFromXaxis ?? 15)
+              : (rotateLabel
+                  ? -40
+                  : -6 -
+                    xAxisTextNumberOfLines * 18 -
+                    (value < 0
+                      ? -xAxisLabelsVerticalShift
+                      : xAxisLabelsVerticalShift)) -
+                barMarginBottom -
+                (value < 0 && !autoShiftLabels
+                  ? -labelsDistanceFromXaxis
+                  : labelsDistanceFromXaxis),
           },
           rotateLabel
             ? horizontal
@@ -118,13 +115,27 @@ const RenderBars = (props: RenderBarsPropsType) => {
                       {
                         translateY: autoShiftLabels
                           ? 0
-                          : 16.5 * xAxisTextNumberOfLines + 14,
+                          : 16.5 * xAxisTextNumberOfLines + 12,
                       },
                     ],
                   }
                 : {},
         ]}>
-        {item.labelComponent ? (
+        {top ? (
+          item.secondaryLabelComponent ? (
+            item.secondaryLabelComponent()
+          ) : (
+            <Text
+              style={[
+                {textAlign: 'center'},
+                rtl && horizontal && {transform: [{rotate: '180deg'}]},
+                labelTextStyle,
+              ]}
+              numberOfLines={xAxisTextNumberOfLines}>
+              {label}
+            </Text>
+          )
+        ) : item.labelComponent ? (
           item.labelComponent()
         ) : (
           <Text
@@ -134,7 +145,7 @@ const RenderBars = (props: RenderBarsPropsType) => {
               labelTextStyle,
             ]}
             numberOfLines={xAxisTextNumberOfLines}>
-            {label || ''}
+            {label}
           </Text>
         )}
       </View>
@@ -142,7 +153,8 @@ const RenderBars = (props: RenderBarsPropsType) => {
   };
 
   const renderAnimatedLabel = (
-    label: String,
+    top: boolean,
+    label: string,
     labelTextStyle: any,
     value: number,
   ) => {
@@ -154,16 +166,23 @@ const RenderBars = (props: RenderBarsPropsType) => {
               (item.labelWidth ||
                 props.labelWidth ||
                 item.barWidth ||
-                props.barWidth ||
-                30) + spacing,
+                barWidth) + spacing,
             left: spacing / -2,
             position: 'absolute',
-            height: props.xAxisLabelsHeight ?? xAxisTextNumberOfLines * 18,
-            bottom:
-              (rotateLabel
-                ? -40
-                : -6 - xAxisTextNumberOfLines * 18 - xAxisLabelsVerticalShift) -
-              barMarginBottom,
+            height:
+              props.xAxisLabelsHeight ??
+              xAxisTextNumberOfLines * 18 -
+                (value < 0
+                  ? -xAxisLabelsVerticalShift
+                  : xAxisLabelsVerticalShift),
+            bottom: top
+              ? (containerHeight || 200) +
+                (secondaryXAxis?.labelsDistanceFromXaxis ?? 15)
+              : (rotateLabel
+                  ? -40
+                  : -6 -
+                    xAxisTextNumberOfLines * 18 -
+                    xAxisLabelsVerticalShift) - barMarginBottom,
             opacity: appearingOpacity,
           },
           value < 0 && {transform: [{rotate: '180deg'}]},
@@ -180,13 +199,27 @@ const RenderBars = (props: RenderBarsPropsType) => {
                       {
                         translateY: autoShiftLabels
                           ? 0
-                          : 16.5 * xAxisTextNumberOfLines + 14,
+                          : 16.5 * xAxisTextNumberOfLines + 12,
                       },
                     ],
                   }
                 : {},
         ]}>
-        {item.labelComponent ? (
+        {top ? (
+          item.secondaryLabelComponent ? (
+            item.secondaryLabelComponent()
+          ) : (
+            <Text
+              style={[
+                {textAlign: 'center'},
+                rtl && horizontal && {transform: [{rotate: '180deg'}]},
+                labelTextStyle,
+              ]}
+              numberOfLines={xAxisTextNumberOfLines}>
+              {label}
+            </Text>
+          )
+        ) : item.labelComponent ? (
           item.labelComponent()
         ) : (
           <Text
@@ -196,86 +229,10 @@ const RenderBars = (props: RenderBarsPropsType) => {
               labelTextStyle,
             ]}
             numberOfLines={xAxisTextNumberOfLines}>
-            {label || ''}
+            {label}
           </Text>
         )}
       </Animated.View>
-    );
-  };
-
-  let leftSpacing = initialSpacing;
-  for (let i = 0; i < index; i++) {
-    leftSpacing +=
-      (data[i].spacing ?? propSpacing) +
-      (data[i].barWidth || props.barWidth || 30);
-  }
-
-  const static2DWithGradient = (item: barDataItem) => {
-    const localGradientColor =
-      item.gradientColor || props.gradientColor || 'white';
-    return (
-      <>
-        <LinearGradient
-          style={commonStyleForBar}
-          start={{x: 0, y: 0}}
-          end={{x: 0, y: 1}}
-          colors={[
-            isFocused
-              ? focusedBarConfig?.gradientColor ?? localGradientColor
-              : localGradientColor,
-            localFrontColor,
-          ]}>
-          {props.cappedBars && item.value ? (
-            <Cap
-              capThicknessFromItem={item.capThickness}
-              capThicknessFromProps={props.capThickness}
-              capColorFromItem={item.capColor}
-              capColorFromProps={props.capColor}
-              capRadiusFromItem={item.capRadius}
-              capRadiusFromProps={props.capRadius}
-            />
-          ) : null}
-        </LinearGradient>
-        {(item.barBackgroundPattern || props.barBackgroundPattern) && (
-          <BarBackgroundPattern
-            barBackgroundPatternFromItem={item.barBackgroundPattern}
-            barBackgroundPatternFromProps={props.barBackgroundPattern}
-            patternIdFromItem={item.patternId}
-            patternIdFromProps={props.patternId}
-          />
-        )}
-        {(item.topLabelComponent || showValuesAsTopLabel) && (
-          <View
-            style={[
-              {
-                position: 'absolute',
-                top: (item.barWidth || props.barWidth || 30) * -1,
-                height: item.barWidth || props.barWidth || 30,
-                width: item.barWidth || props.barWidth || 30,
-                justifyContent:
-                  (horizontal && !intactTopLabel) || item.value < 0
-                    ? 'center'
-                    : 'flex-end',
-                alignItems: 'center',
-              },
-              item.value < 0 && {transform: [{rotate: '180deg'}]},
-              horizontal &&
-                !intactTopLabel && {transform: [{rotate: '270deg'}]},
-              topLabelContainerStyle ?? item.topLabelContainerStyle,
-            ]}>
-            {showValuesAsTopLabel ? (
-              <Text style={topLabelTextStyle}>{item.value + yAxisOffset}</Text>
-            ) : (
-              item.topLabelComponent?.()
-            )}
-          </View>
-        )}
-        {localBarInnerComponent ? (
-          <View style={{height: '100%', width: '100%'}}>
-            {localBarInnerComponent(item, index)}
-          </View>
-        ) : null}
-      </>
     );
   };
 
@@ -283,32 +240,19 @@ const RenderBars = (props: RenderBarsPropsType) => {
     {
       // overflow: 'visible',
       marginBottom: 60 + barMarginBottom + xAxisLabelsVerticalShift - 0.5,
-      width: commonPropsFor2Dand3Dbars.barWidth,
+      width: commonPropsFor2dAnd3dBars.barWidth,
       height: barHeight,
       marginRight: spacing,
+      transform: [
+        {
+          translateY:
+            (containerHeight || 200) -
+            (barHeight - 10 + xAxisLabelsVerticalShift) +
+            (item.value < 0 ? Math.abs(item.value) * heightFactor : 0),
+        },
+        {rotateZ: item.value < 0 ? '180deg' : '0deg'},
+      ],
     },
-    item.value < 0
-      ? {
-          transform: [
-            {
-              translateY:
-                (Math.abs(item.value) * (containerHeight || 200)) /
-                (maxValue || 200),
-            },
-            {rotateZ: '180deg'},
-          ],
-        }
-      : pointerConfig
-        ? {
-            transform: [
-              {
-                translateY:
-                  (containerHeight || 200) -
-                  (barHeight - 10 + xAxisLabelsVerticalShift),
-              },
-            ],
-          }
-        : null,
     side !== 'right' && {zIndex: data.length - index},
   ];
 
@@ -319,10 +263,14 @@ const RenderBars = (props: RenderBarsPropsType) => {
 
   const barContent = () => {
     const isBarBelowXaxisAndInvisible =
-      item.value < 0 && !noOfSectionsBelowXAxis;
-    const animated2DWithGradient = (noGradient, noAnimation) => (
+      item.value < 0 &&
+      !(noOfSectionsBelowXAxis || secondaryNoOfSectionsBelowXAxis);
+    const animated2DWithGradient = (
+      noGradient: boolean,
+      noAnimation: boolean,
+    ) => (
       <Animated2DWithGradient
-        {...commonPropsFor2Dand3Dbars}
+        {...commonPropsFor2dAnd3dBars}
         animationDuration={animationDuration || 800}
         roundedBottom={props.roundedBottom || false}
         roundedTop={props.roundedTop || false}
@@ -353,21 +301,18 @@ const RenderBars = (props: RenderBarsPropsType) => {
               height: props.xAxisIndicesHeight,
               width: props.xAxisIndicesWidth,
               bottom: props.xAxisIndicesHeight / -2,
-              left:
-                ((item.barWidth || props.barWidth || 30) -
-                  props.xAxisIndicesWidth) /
-                2,
+              left: ((item.barWidth || barWidth) - props.xAxisIndicesWidth) / 2,
               backgroundColor: props.xAxisIndicesColor,
             }}
           />
         )}
         {isBarBelowXaxisAndInvisible ? null : isThreeD ? (
           <AnimatedThreeDBar
-            {...commonPropsFor2Dand3Dbars}
+            {...commonPropsFor2dAnd3dBars}
             sideWidth={
               item.sideWidth ||
               props.sideWidth ||
-              (item.barWidth || props.barWidth || 30) / 2
+              (item.barWidth || barWidth) / 2
             }
             side={side || 'left'}
             sideColor={item.sideColor || props.sideColor || ''}
@@ -381,7 +326,7 @@ const RenderBars = (props: RenderBarsPropsType) => {
           isAnimated ? (
             animated2DWithGradient(false, false)
           ) : (
-            static2DWithGradient(item)
+            animated2DWithGradient(false, true)
           )
         ) : isAnimated ? (
           animated2DWithGradient(true, false)
@@ -389,8 +334,23 @@ const RenderBars = (props: RenderBarsPropsType) => {
           animated2DWithGradient(true, true)
         )}
         {isAnimated
-          ? renderAnimatedLabel(label, labelTextStyle, item.value)
-          : renderLabel(label, labelTextStyle, item.value)}
+          ? renderAnimatedLabel(false, label, labelTextStyle, item.value)
+          : renderLabel(false, label, labelTextStyle, item.value)}
+        {secondaryXAxis
+          ? isAnimated
+            ? renderAnimatedLabel(
+                true,
+                secondaryLabel,
+                secondaryLabelTextStyle,
+                item.value,
+              )
+            : renderLabel(
+                true,
+                secondaryLabel,
+                secondaryLabelTextStyle,
+                item.value,
+              )
+          : null}
       </>
     );
   };
@@ -406,7 +366,9 @@ const RenderBars = (props: RenderBarsPropsType) => {
           activeOpacity={props.activeOpacity || 0.2}
           onPress={() => {
             if (renderTooltip || props.focusBarOnPress) {
-              setSelectedIndex(index);
+              if (props.focusedBarIndex === undefined || !props.onPress) {
+                setSelectedIndex(index);
+              }
             }
             item.onPress
               ? item.onPress()
@@ -433,19 +395,7 @@ const RenderBars = (props: RenderBarsPropsType) => {
         </TouchableOpacity>
       )}
       {renderTooltip && selectedIndex === index && (
-        <View
-          style={{
-            position: 'absolute',
-            bottom: barHeight + 60,
-            left:
-              index === data.length - 1
-                ? leftSpacing - leftShiftForLastIndexTooltip
-                : leftSpacing -
-                  (item?.leftShiftForTooltip ?? leftShiftForTooltip ?? 0),
-            zIndex: 1000,
-          }}>
-          {renderTooltip(item, index)}
-        </View>
+        <Tooltip {...tooltipProps} />
       )}
     </>
   );

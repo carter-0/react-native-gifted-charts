@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {View, LayoutAnimation, Platform, UIManager, Text} from 'react-native';
 import Svg, {Defs, Rect} from 'react-native-svg';
 import Cap from '../Components/BarSpecificComponents/cap';
-import LinearGradient from "../Components/common/LinearGradient";
+import LinearGradient from '../Components/common/LinearGradient';
 import {Animated2DWithGradientPropsType} from 'gifted-charts-core';
 
 if (Platform.OS === 'android') {
@@ -14,7 +14,7 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
   const {
     barBackgroundPattern,
     patternId,
-    barWidth,
+    barWidth: bWidth,
     barStyle,
     item,
     index,
@@ -22,9 +22,6 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
     animationDuration,
     noGradient,
     noAnimation,
-    containerHeight,
-    maxValue,
-    barMarginBottom,
     barInnerComponent,
     intactTopLabel,
     showValuesAsTopLabel,
@@ -34,10 +31,9 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
     barStyleWithBackground,
     yAxisOffset,
   } = props;
-  const [height, setHeight] = useState(noAnimation ? props.height : 0.2);
-  const [initialRender, setInitialRender] = useState(
-    noAnimation ? false : true,
-  );
+  const [height, setHeight] = useState(noAnimation ? props.height : 0.4); // if animation fails, increase this constant value of 0.4
+  const [initialRender, setInitialRender] = useState(!noAnimation);
+  const [barWidth, setBarWidth] = useState(item.barWidth ?? bWidth); // setting width in state for animation purpose
 
   useEffect(() => {
     if (!noAnimation) {
@@ -46,8 +42,11 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
       } else {
         elevate();
       }
+    } else {
+      setHeight(props.height);
+      setBarWidth(item.barWidth ?? bWidth);
     }
-  }, [props.height]);
+  }, [props.height, bWidth, item.barWidth]);
 
   const elevate = () => {
     LayoutAnimation.configureNext({
@@ -55,6 +54,7 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
       update: {type: 'linear', property: 'scaleXY'},
     });
     setHeight(props.height);
+    setBarWidth(item.barWidth ?? bWidth);
   };
 
   const layoutAppear = () => {
@@ -73,22 +73,20 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
         <View
           style={{
             position: 'absolute',
-            bottom: -0.5,
-            width: '100%',
+            bottom: 0,
+            width: barWidth,
             overflow: 'hidden',
-            height:
-              (noAnimation
-                ? Math.max(props.minHeight, Math.abs(height))
-                : height) - (barMarginBottom || 0),
+            height: noAnimation
+              ? Math.max(props.minHeight, Math.abs(height))
+              : height,
           }}>
           <View
             style={[
               {
                 width: '100%',
-                height:
-                  (noAnimation
-                    ? Math.max(props.minHeight, Math.abs(height))
-                    : height) - (barMarginBottom || 0),
+                height: noAnimation
+                  ? Math.max(props.minHeight, Math.abs(height))
+                  : height,
               },
               item.barStyle || barStyle,
             ]}>
@@ -146,10 +144,10 @@ const Animated2DWithGradient = (props: Animated2DWithGradientPropsType) => {
                     : barBackgroundPattern?.()}
                 </Defs>
                 <Rect
-                  stroke="transparent"
+                  stroke="none"
                   x="1"
                   y="1"
-                  width={item.barWidth || props.barWidth || 30}
+                  width={item.barWidth || barWidth || 30}
                   height={noAnimation ? Math.abs(height) : height}
                   fill={`url(#${item.patternId || patternId})`}
                 />
